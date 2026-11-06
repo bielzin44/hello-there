@@ -13,7 +13,7 @@ const books = [
   ["✍️","Caligrafia Cursiva","Prática gradual da escrita","from-indigo-400 to-blue-600"],
   ["🎨","Pintura e Cores","Expressão e criatividade","from-yellow-400 to-orange-500"]
 ];
-const coverImages = ["https://atividadespremium.pt/images/ChatGPT_Image_13_de_mar._de_2026__09_49_42-removebg-preview-1_7_11zon_6_11zon.webp","https://atividadespremium.pt/images/ChatGPT_Image_13_de_mar._de_2026__09_56_47-removebg-preview-1_8_11zon_7_11zon.webp","https://atividadespremium.pt/images/1770302576-afzst-r2cf-85804_2_11zon_1_11zon.webp","https://atividadespremium.pt/images/1770302576-afzst-r2cf-85804_2_11zon_1_11zon.webp","https://atividadespremium.pt/images/1770302615-afzst-r2cf-85810_3_11zon_2_11zon.webp","https://atividadespremium.pt/images/1770302712-afzst-r2cf-85824_6_11zon_5_11zon.webp","https://atividadespremium.pt/images/1770302657-afzst-r2cf-85815_4_11zon_3_11zon.webp","https://atividadespremium.pt/images/1770302693-afzst-r2cf-85819_5_11zon_4_11zon.webp"];
+const coverImages = ["/images/capas/portugues-completo.webp","/images/capas/matematica-descomplicada.webp","/images/capas/silabas-simples.webp","/images/capas/silabas-complexas.webp","/images/capas/producao-textual.webp","/images/capas/coordenacao-motora.webp","/images/capas/caligrafia-cursiva.webp","/images/capas/pintura-e-cores.webp"];
 const bonuses = [
   ["📚","Fichas Extra de Português","80 páginas adicionais de atividades"],
   ["📖","Frases e Textos Prontos","Textos curtos para praticar a leitura"],
