@@ -50,16 +50,16 @@ function Index() {
  const offer=()=>document.getElementById("oferta")?.scrollIntoView({behavior:"smooth"});
  return <div className="min-h-screen bg-white text-[#283f61]">
   <style>{`
-    @keyframes announcement-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-    .announcement-track { animation: announcement-scroll 34s linear infinite; }
-    .announcement-track:hover { animation-play-state: paused; }
+    @keyframes announcement-scroll { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(-50%,0,0); } }
+    .announcement-track { display: flex; width: max-content; will-change: transform; animation: announcement-scroll 22s linear infinite !important; }
+    .announcement-track > div { flex: 0 0 auto; }
     @keyframes gentle-cta { 0%, 78%, 100% { transform: translateY(0); } 85% { transform: translateY(-3px); } 92% { transform: translateY(0); } }
     @keyframes arrow-nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
     .checkout-cta { animation: gentle-cta 5s ease-in-out infinite; box-shadow: 0 6px 0 #0d6040, 0 12px 24px rgba(15, 91, 67, .16); transition: background-color .2s ease, box-shadow .2s ease; }
     .checkout-cta:hover { animation-play-state: paused; box-shadow: 0 4px 0 #0d6040, 0 10px 24px rgba(15, 91, 67, .22); }
     .checkout-cta .cta-arrow { display: inline-block; animation: arrow-nudge 1.8s ease-in-out infinite; }
     .checkout-cta:focus-visible { outline: 3px solid #e7a06c; outline-offset: 4px; }
-    @media (prefers-reduced-motion: reduce) { .checkout-cta, .checkout-cta .cta-arrow, .announcement-track { animation: none !important; transition: none !important; } }
+    @media (prefers-reduced-motion: reduce) { .checkout-cta, .checkout-cta .cta-arrow { animation: none !important; transition: none !important; } .announcement-track { animation-duration: 60s !important; } }
   `}</style>
   <div className="overflow-hidden bg-[#2474b5] py-2.5 text-white" aria-label="Material digital pronto a imprimir. Bónus exclusivos incluídos. Acesso após confirmação do pagamento. Garantia de 15 dias. Pagamento seguro com MB WAY e Multibanco.">
     <div className="announcement-track flex w-max items-center" aria-hidden="true">
