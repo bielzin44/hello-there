@@ -31,6 +31,18 @@ const faqs = [
 function Index() {
  const [open,setOpen]=useState<number|null>(0);
  const [menu,setMenu]=useState(false);
+ const [showMobileOffer,setShowMobileOffer]=useState(false);
+ useEffect(()=>{
+   const section=document.getElementById("oferta");
+   if(!section)return;
+   let offerVisible=false;
+   const update=()=>setShowMobileOffer(window.scrollY>500&&!offerVisible);
+   const observer=new IntersectionObserver(([entry])=>{offerVisible=entry.isIntersecting;update();},{threshold:0});
+   observer.observe(section);
+   window.addEventListener("scroll",update,{passive:true});
+   update();
+   return ()=>{observer.disconnect();window.removeEventListener("scroll",update)};
+ },[]);
  
  const [activeBook,setActiveBook]=useState(0);
  useEffect(()=>{const timer=window.setInterval(()=>setActiveBook(i=>(i+1)%books.length),4500);return ()=>window.clearInterval(timer)},[]);
@@ -53,6 +65,7 @@ function Index() {
    <section id="garantia" className="bg-[#eefbf3] px-5 py-16"><div className="mx-auto flex max-w-4xl flex-col items-center gap-7 rounded-3xl border-2 border-[#c6efd7] bg-white p-7 text-center shadow-sm sm:p-10 md:flex-row md:text-left"><div className="flex h-28 w-28 shrink-0 flex-col items-center justify-center rounded-full border-4 border-[#16885a] bg-[#e8f9ee] text-[#116b47]"><ShieldCheck size={40}/><span className="mt-1 text-xs font-black">15 DIAS</span></div><div><span className="text-xs font-black uppercase tracking-widest text-[#116b47]">Compra sem risco</span><h2 className="mt-2 text-2xl font-black text-[#23466f] sm:text-3xl">Garantia INCONDICIONAL de 15 dias</h2><p className="mt-4 leading-relaxed text-slate-700">Se em 15 dias não adorares o material, podes solicitar o reembolso pelos canais da Hotmart e receber <strong>100% do teu dinheiro</strong>. De acordo com as condições da garantia anunciada.</p><p className="mt-3 text-xs text-slate-500">Para solicitar reembolso, utiliza os canais de apoio e reembolso disponibilizados pela Hotmart.</p></div></div></section><section id="perguntas" className="mx-auto max-w-3xl px-5 py-20"><h2 className="text-center text-3xl font-black text-[#23466f]">Perguntas frequentes</h2><div className="mt-9 space-y-3">{faqs.map(([q,a],i)=><div key={q} className="rounded-2xl border border-[#dbeafb] bg-white shadow-sm"><button onClick={()=>setOpen(open===i?null:i)} aria-expanded={open===i} className="flex w-full items-center justify-between gap-3 p-5 text-left font-bold text-[#2474b5]">{q}<ChevronDown className={open===i?"rotate-180":""} size={20}/></button>{open===i&&<p className="px-5 pb-5 text-sm leading-relaxed text-slate-600">{a}</p>}</div>)}</div></section>
    <section className="bg-[#2474b5] px-5 py-16 text-center text-white"><div className="text-5xl">🌟 📚 🌟</div><h2 className="mx-auto mt-5 max-w-2xl text-3xl font-black">Mais recursos para acompanhar cada etapa da aprendizagem</h2><button onClick={offer} className="mt-7 rounded-xl bg-[#16885a] px-9 py-4 font-black text-white">VER OS PACOTES →</button></section>
   </main>
+  {showMobileOffer&&<div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#cde8dc] bg-white/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_28px_rgba(35,70,111,0.12)] backdrop-blur-md md:hidden"><button type="button" onClick={offer} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#16885a] px-3 py-3 text-sm font-extrabold text-white shadow-[0_3px_0_#0d6040] active:translate-y-0.5" aria-label="Ver pacotes a partir de sete euros"><span>Ver pacotes a partir de €7,00</span><ArrowRight size={18} aria-hidden="true"/></button></div>}
   <footer className="bg-[#23466f] px-5 py-9 text-center text-sm text-[#d9edff]"><strong className="text-white">Conexão Aluno</strong><p className="mt-2">Kit de atividades educativas • Portugal</p><p className="mt-3 text-xs">© 2026 Conexão Aluno. Resultados de aprendizagem variam de criança para criança.</p></footer>
 
  </div>;
