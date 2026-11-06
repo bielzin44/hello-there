@@ -61,9 +61,9 @@ function Index() {
     .checkout-cta:focus-visible { outline: 3px solid #e7a06c; outline-offset: 4px; }
     @media (prefers-reduced-motion: reduce) { .checkout-cta, .checkout-cta .cta-arrow { animation: none !important; transition: none !important; } .announcement-track { animation-duration: 60s !important; } }
   `}</style>
-  <div className="overflow-hidden bg-[#2474b5] py-2.5 text-white" aria-label="Material digital pronto a imprimir. Bónus exclusivos incluídos. Acesso após confirmação do pagamento. Garantia de 15 dias. Pagamento seguro com MB WAY e Multibanco.">
+  <div className="overflow-hidden border-b border-[#0b554d] bg-[#116b60] py-3 text-white shadow-sm" aria-label="Material digital pronto a imprimir. Bónus exclusivos incluídos. Acesso após confirmação do pagamento. Garantia de 15 dias. Pagamento seguro com MB WAY e Multibanco.">
     <div className="announcement-track flex w-max items-center" aria-hidden="true">
-      {Array.from({length:2},(_,i)=><div key={i} className="flex shrink-0 items-center whitespace-nowrap text-xs font-extrabold tracking-wide sm:text-sm">
+      {Array.from({length:2},(_,i)=><div key={i} className="flex shrink-0 items-center whitespace-nowrap text-[13px] font-bold leading-5 tracking-[0.01em] sm:text-[15px]">
         <span className="px-5">📚 MATERIAL DIGITAL PRONTO A IMPRIMIR</span>
         <span className="px-5">🎁 BÓNUS EXCLUSIVOS INCLUÍDOS</span>
         <span className="px-5">⚡ ACESSO DIGITAL APÓS CONFIRMAÇÃO DO PAGAMENTO</span>
