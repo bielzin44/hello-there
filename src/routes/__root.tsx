@@ -106,11 +106,11 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="pt-PT">
       <head>
         <HeadContent />
-        {/* Meta Pixel — Conexão Aluno: page views only; purchases are tracked after checkout confirmation. */}
-        <script dangerouslySetInnerHTML={{ __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1762848808491624');fbq('track','PageView');` }} />
+        {/* Meta Pixel Vendas — page views on this site; Purchase is sent by Hotmart after payment approval. */}
+        <script dangerouslySetInnerHTML={{ __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','1661968312221027');fbq('track','PageView');` }} />
       </head>
       <body>
-        <noscript><img height="1" width="1" style={{ display: "none" }} src="https://www.facebook.com/tr?id=1762848808491624&ev=PageView&noscript=1" alt="" /></noscript>
+        <noscript><img height="1" width="1" style={{ display: "none" }} src="https://www.facebook.com/tr?id=1661968312221027&ev=PageView&noscript=1" alt="" /></noscript>
         {children}
         <Scripts />
       </body>
