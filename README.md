@@ -24,4 +24,4 @@ npm run build
 
 ## Checkouts Cakto
 
-Para ativar os botões de compra, configure os links públicos de checkout em `VITE_CAKTO_BASICO_URL` e `VITE_CAKTO_COMPLETO_URL` no ambiente de build. Cada link deve pertencer a `https://pay.cakto.com.br` e corresponder ao plano indicado. Gere uma nova versão após configurar os links. Quando um plano tem checkout válido, o botão desse plano usa a Cakto.
+Os botões de compra já usam os checkouts públicos dos planos Básico e Completo na Cakto. Se um link mudar, configure `VITE_CAKTO_BASICO_URL` ou `VITE_CAKTO_COMPLETO_URL` no ambiente de build e gere uma nova versão. Cada link deve pertencer a `https://pay.cakto.com.br` e corresponder ao plano indicado.

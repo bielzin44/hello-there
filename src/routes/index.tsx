@@ -44,7 +44,9 @@ const plans = [
   {
     name: "Básico",
     price: "R$ 19,90",
-    checkout: caktoCheckout(import.meta.env["VITE_CAKTO_BASICO_URL"]),
+    checkout:
+      caktoCheckout(import.meta.env["VITE_CAKTO_BASICO_URL"]) ??
+      "https://pay.cakto.com.br/33qmvhu_1329845",
     description: "A biblioteca de diagnóstico doméstico e comercial.",
     features: [
       "6 cadernos técnicos em PDF",
@@ -56,7 +58,9 @@ const plans = [
   {
     name: "Completo",
     price: "R$ 24,90",
-    checkout: caktoCheckout(import.meta.env["VITE_CAKTO_COMPLETO_URL"]),
+    checkout:
+      caktoCheckout(import.meta.env["VITE_CAKTO_COMPLETO_URL"]) ??
+      "https://pay.cakto.com.br/8gwdoad_1329846",
     description: "A biblioteca técnica e ferramentas para o dia a dia do atendimento.",
     features: [
       "Todos os 6 cadernos do Básico",
