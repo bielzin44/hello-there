@@ -21,3 +21,7 @@ Quando a variável está disponível, os botões abrem o WhatsApp com a mensagem
 npm run test
 npm run build
 ```
+
+## Checkouts Cakto
+
+Para ativar os botões de compra, configure os links públicos de checkout em `VITE_CAKTO_BASICO_URL` e `VITE_CAKTO_COMPLETO_URL` no ambiente de build. Cada link deve pertencer a `https://pay.cakto.com.br` e corresponder ao plano indicado. Gere uma nova versão após configurar os links. Quando um plano tem checkout válido, o botão desse plano usa a Cakto.

@@ -25,32 +25,50 @@ const asset = "/images/refrigerista";
 const contact = import.meta.env["VITE_WHATSAPP_NUMBER"]?.trim().replace(/\D/g, "");
 const hasWhatsApp = /^55\d{10,11}$/.test(contact ?? "");
 
+function caktoCheckout(value: string | undefined) {
+  if (!value) return null;
+  try {
+    const url = new URL(value.trim());
+    return url.origin === "https://pay.cakto.com.br" &&
+      url.pathname.length > 1 &&
+      !url.username &&
+      !url.password
+      ? url.href
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 const plans = [
   {
     name: "Básico",
-    price: "R$ 14,90",
-    description: "Para começar pelos chamados mais comuns e pelos testes elétricos.",
+    price: "R$ 19,90",
+    checkout: caktoCheckout(import.meta.env["VITE_CAKTO_BASICO_URL"]),
+    description: "A biblioteca de diagnóstico doméstico e comercial.",
     features: [
-      "Mapa Visual Geral",
-      "Diagnóstico Split",
-      "Mapa Elétrico do Refrigerista",
-      "132 páginas de conteúdo em 3 PDFs",
+      "6 cadernos técnicos em PDF",
+      "Diagnóstico por sintoma, testes elétricos e inverter",
+      "Vazamento, vácuo, carga e refrigeração comercial",
+      "240 páginas de conteúdo",
     ],
   },
   {
     name: "Completo",
-    price: "R$ 19,90",
-    description: "Para consultar também circuito frigorífico, inverter e refrigeração comercial.",
+    price: "R$ 24,90",
+    checkout: caktoCheckout(import.meta.env["VITE_CAKTO_COMPLETO_URL"]),
+    description: "A biblioteca técnica e ferramentas para o dia a dia do atendimento.",
     features: [
-      "Os 3 cadernos do Básico",
-      "Vazamento, Vácuo e Carga",
-      "Diagnóstico Inverter na Prática",
-      "Refrigeração Comercial",
-      "Todos os 10 bônus",
+      "Todos os 6 cadernos do Básico",
+      "10 bônus com modelos, guias e checklists",
       "350 páginas de conteúdo em 16 PDFs",
     ],
   },
 ];
+
+const [basicPlan, completePlan] = plans;
+const usesCakto = Boolean(basicPlan?.checkout || completePlan?.checkout);
+const canBuyBothPlans = plans.every((plan) => plan.checkout || hasWhatsApp);
 
 const cadernos = [
   {
@@ -116,11 +134,13 @@ const bonuses = [
 const faq = [
   [
     "O que muda entre os dois planos?",
-    "O Básico inclui Mapa Visual Geral, Diagnóstico Split e Mapa Elétrico. O Completo reúne os seis cadernos e os dez bônus. As contagens acima são de páginas de conteúdo, além das capas.",
+    "Os dois planos incluem os seis cadernos. O Completo também inclui os dez bônus. As contagens são de páginas de conteúdo, além das capas.",
   ],
   [
     "Como recebo e quando pago?",
-    "Escolha o plano e chame no WhatsApp. Você recebe os PDFs do plano escolhido, confere o material e faz o pagamento único conforme o valor do seu plano.",
+    usesCakto
+      ? "Escolha seu plano e siga as instruções no botão. No checkout da Cakto, o acesso digital é liberado após a confirmação do pagamento."
+      : "No atendimento por WhatsApp, você recebe os PDFs do plano escolhido, confere o material e faz o pagamento único.",
   ],
   [
     "Preciso imprimir?",
@@ -139,6 +159,14 @@ const faq = [
 function PlanButton({ plan }: { plan: (typeof plans)[number] }) {
   const message = `Olá! Quero receber o Plano ${plan.name} do Mapa Visual do Técnico Refrigerista por ${plan.price}.`;
   const label = `Quero o ${plan.name}`;
+
+  if (plan.checkout) {
+    return (
+      <a className="rf-cta" href={plan.checkout}>
+        {label} <ArrowRight size={19} aria-hidden="true" />
+      </a>
+    );
+  }
 
   if (!hasWhatsApp) {
     return (
@@ -357,11 +385,14 @@ function RefrigeristaLanding() {
                   Ver os planos <ArrowRight size={18} aria-hidden="true" />
                 </a>
                 <span className="rf-hero-price">
-                  A partir de <strong>R$ 14,90</strong>
+                  A partir de <strong>{basicPlan?.price}</strong>
                 </span>
               </div>
               <p className="rf-hero-note">
-                <Check size={16} aria-hidden="true" /> Receba os PDFs, confira e só depois pague.
+                <Check size={16} aria-hidden="true" />{" "}
+                {usesCakto
+                  ? "Material digital em PDF. Pagamento único."
+                  : "Receba os PDFs, confira e só depois pague."}
               </p>
             </div>
             <figure
@@ -444,7 +475,7 @@ function RefrigeristaLanding() {
           <div className="rf-wrap">
             <div className="rf-section-head">
               <h2 id="titulo-cadernos">Seis cadernos para consultar em campo</h2>
-              <p>O Básico inclui os três primeiros. O Completo reúne todos os volumes.</p>
+              <p>Os seis cadernos estão nos dois planos.</p>
             </div>
             <div className="rf-volume-grid">
               {cadernos.map((item, index) => (
@@ -529,7 +560,11 @@ function RefrigeristaLanding() {
           <div className="rf-wrap">
             <div className="rf-section-head rf-offer-head">
               <h2 id="titulo-oferta">Escolha seu plano</h2>
-              <p>Receba os PDFs pelo WhatsApp, confira o material e só depois pague.</p>
+              <p>
+                {usesCakto
+                  ? "Escolha uma opção para receber o material em PDF."
+                  : "Receba os PDFs pelo WhatsApp, confira o material e só depois pague."}
+              </p>
             </div>
             <div className="rf-offer-grid">
               {plans.map((plan, index) => (
@@ -555,9 +590,11 @@ function RefrigeristaLanding() {
                 </article>
               ))}
             </div>
-            {!hasWhatsApp && (
+            {!canBuyBothPlans && (
               <p className="rf-contact-status">
-                O atendimento pelo WhatsApp estará disponível em breve.
+                {usesCakto
+                  ? "Alguns planos ainda estão sendo configurados."
+                  : "As vendas serão disponibilizadas em breve."}
               </p>
             )}
           </div>
