@@ -1,3 +1,10 @@
+import * as Dialog from "@radix-ui/react-dialog";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from "@/components/ui/carousel";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -9,11 +16,13 @@ import {
   ClipboardList,
   Download,
   Expand,
+  FileText,
   Menu,
   MessageCircle,
   Pause,
   Play,
   Search,
+  ShieldCheck,
   Snowflake,
   Wrench,
   X,
@@ -47,12 +56,12 @@ const plans = [
     checkout:
       caktoCheckout(import.meta.env["VITE_CAKTO_BASICO_URL"]) ??
       "https://pay.cakto.com.br/33qmvhu_1329845",
-    description: "A biblioteca de diagnóstico doméstico e comercial.",
+    description: "Para consultar sintomas e organizar as primeiras verificações no atendimento.",
     features: [
       "6 cadernos técnicos em PDF",
       "Diagnóstico por sintoma, testes elétricos e inverter",
       "Vazamento, vácuo, carga e refrigeração comercial",
-      "240 páginas de conteúdo",
+      "240 páginas para consultar no celular ou imprimir",
     ],
   },
   {
@@ -61,14 +70,15 @@ const plans = [
     checkout:
       caktoCheckout(import.meta.env["VITE_CAKTO_COMPLETO_URL"]) ??
       "https://pay.cakto.com.br/8gwdoad_1329846",
-    description: "A biblioteca técnica e ferramentas para o dia a dia do atendimento.",
+    description: "Para consultar, orçar e registrar o serviço com os modelos já prontos.",
     features: [
       "Todos os 6 cadernos do Básico",
-      "10 bônus com modelos, guias e checklists",
+      "Orçamentos, ordens de serviço e mensagens de WhatsApp",
+      "Checklists, guias de campo e chamados simulados",
       "350 páginas de conteúdo em 16 PDFs",
     ],
   },
-];
+] as const;
 
 const [basicPlan, completePlan] = plans;
 const usesCakto = Boolean(basicPlan?.checkout || completePlan?.checkout);
@@ -162,7 +172,7 @@ const faq = [
 
 function PlanButton({ plan }: { plan: (typeof plans)[number] }) {
   const message = `Olá! Quero receber o Plano ${plan.name} do Mapa Visual do Técnico Refrigerista por ${plan.price}.`;
-  const label = `Quero o ${plan.name}`;
+  const label = `Comprar Plano ${plan.name}`;
 
   if (plan.checkout) {
     return (
@@ -193,11 +203,16 @@ function PlanButton({ plan }: { plan: (typeof plans)[number] }) {
 }
 
 function PageCarousel() {
-  const rail = useRef<HTMLDivElement>(null);
-  const original = useRef<HTMLDivElement>(null);
-  const resumeAfter = useRef(0);
-  const [motion, setMotion] = useState(true);
+  const section = useRef<HTMLElement>(null);
+  const sampleTrigger = useRef<HTMLButtonElement>(null);
+  const [carousel, setCarousel] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+  const [opened, setOpened] = useState<number | null>(null);
+  const [visible, setVisible] = useState(false);
+  const [playing, setPlaying] = useState(true);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [focused, setFocused] = useState(false);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -208,115 +223,165 @@ function PageCarousel() {
   }, []);
 
   useEffect(() => {
-    const viewport = rail.current;
-    const row = original.current;
-    if (!viewport || !row || !motion || reducedMotion) return;
+    if (!section.current) return;
+    if (!("IntersectionObserver" in window)) {
+      setVisible(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setVisible(Boolean(entry?.isIntersecting)),
+      {
+        threshold: 0.2,
+      },
+    );
+    observer.observe(section.current);
+    return () => observer.disconnect();
+  }, []);
 
-    let animation = 0;
-    let previousTime = 0;
-    let remainder = 0;
-    const scroll = (time: number) => {
-      if (
-        previousTime &&
-        time > resumeAfter.current &&
-        !viewport.matches(":hover, :focus-within")
-      ) {
-        remainder += Math.min(time - previousTime, 50) * 0.034;
-        const pixels = Math.floor(remainder);
-        const cycle = row.offsetWidth;
-        if (pixels && cycle) {
-          viewport.scrollLeft = (viewport.scrollLeft + pixels) % cycle;
-          remainder -= pixels;
-        }
-      }
-      previousTime = time;
-      animation = requestAnimationFrame(scroll);
+  useEffect(() => {
+    if (!carousel) return;
+    const update = () => setCurrent(carousel.selectedScrollSnap());
+    update();
+    carousel.on("select", update).on("reInit", update);
+    return () => {
+      carousel.off("select", update).off("reInit", update);
     };
-    animation = requestAnimationFrame(scroll);
-    return () => cancelAnimationFrame(animation);
-  }, [motion, reducedMotion]);
+  }, [carousel]);
 
-  function move(direction: number) {
-    const viewport = rail.current;
-    const row = original.current;
-    const card = row?.firstElementChild;
-    if (!viewport || !row || !card) return;
-    resumeAfter.current = performance.now() + 5000;
-    const cycle = row.offsetWidth;
-    let start = viewport.scrollLeft % cycle;
-    const step = card.getBoundingClientRect().width + 16;
-    if (direction < 0 && start < step) start += cycle;
-    viewport.scrollLeft = start;
-    viewport.scrollBy({ left: direction * step, behavior: reducedMotion ? "instant" : "smooth" });
-  }
+  useEffect(() => {
+    if (!carousel || !playing || !visible || reducedMotion || hovered || focused || opened !== null)
+      return;
+
+    const timer = window.setInterval(() => {
+      if (!document.hidden) carousel.scrollPrev();
+    }, 3700);
+
+    return () => window.clearInterval(timer);
+  }, [carousel, playing, visible, reducedMotion, hovered, focused, opened]);
+
+  const sample = opened === null ? null : cadernos[opened];
 
   return (
-    <section id="amostras" className="rf-section rf-samples" aria-labelledby="titulo-amostras">
+    <section
+      ref={section}
+      id="amostras"
+      className="rf-section rf-samples"
+      aria-labelledby="titulo-amostras"
+    >
       <div className="rf-wrap">
-        <div className="rf-section-head rf-samples-head">
-          <div>
-            <h2 id="titulo-amostras">Veja os mapas por dentro</h2>
-            <p>Toque numa ficha para ampliar e ver como o diagnóstico é organizado.</p>
-          </div>
-          <div className="rf-carousel-controls" aria-label="Controles das amostras">
-            <button type="button" onClick={() => move(-1)} aria-label="Ficha anterior">
-              <ArrowLeft size={20} />
-            </button>
-            <button type="button" onClick={() => move(1)} aria-label="Próxima ficha">
-              <ArrowRight size={20} />
-            </button>
-            {!reducedMotion && (
-              <button
-                type="button"
-                onClick={() => setMotion(!motion)}
-                aria-label={motion ? "Pausar amostras" : "Reproduzir amostras"}
-              >
-                {motion ? <Pause size={16} /> : <Play size={16} />}
-              </button>
-            )}
-          </div>
+        <div className="rf-section-head rf-center">
+          <p className="rf-kicker">FICHAS REAIS DO MATERIAL</p>
+          <h2 id="titulo-amostras">Veja como o produto funciona</h2>
+          <p>Deslize pelas fichas e toque em uma página para ler os detalhes.</p>
         </div>
-        <div
-          className="rf-carousel"
-          ref={rail}
-          onPointerDown={() => {
-            resumeAfter.current = performance.now() + 5000;
-          }}
-        >
-          {[false, true].map((clone) => (
-            <div
-              className="rf-carousel-row"
-              key={String(clone)}
-              ref={clone ? undefined : original}
-              aria-hidden={clone || undefined}
-            >
+        <Dialog.Root open={sample !== null} onOpenChange={(open) => !open && setOpened(null)}>
+          <Carousel
+            opts={{ align: "center", loop: true, duration: reducedMotion ? 0 : 28 }}
+            setApi={setCarousel}
+            className="rf-sample-frame"
+            aria-label="Páginas de exemplo"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            onFocus={() => setFocused(true)}
+            onBlur={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
+            }}
+          >
+            <CarouselContent className="rf-carousel-row">
               {cadernos.map((item, index) => (
-                <a
-                  className="rf-slide"
-                  key={item.title}
-                  href={`${asset}/ficha-${index + 1}.webp`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  tabIndex={clone ? -1 : undefined}
-                >
-                  <img
-                    src={`${asset}/ficha-${index + 1}.webp`}
-                    width={650}
-                    height={919}
-                    loading={index < 3 ? "eager" : "lazy"}
-                    alt={clone ? "" : `Ficha: ${item.sample}`}
-                  />
-                  <span>
-                    {item.sample}
-                    <Expand size={15} aria-hidden="true" />
-                  </span>
-                </a>
+                <CarouselItem className="rf-carousel-item" key={item.title}>
+                  <button
+                    type="button"
+                    className="rf-slide"
+                    onClick={(event) => {
+                      sampleTrigger.current = event.currentTarget;
+                      setOpened(index);
+                    }}
+                    aria-label={`Ampliar ficha: ${item.sample}`}
+                  >
+                    <img
+                      src={`${asset}/ficha-${index + 1}.webp`}
+                      width={650}
+                      height={919}
+                      loading="lazy"
+                      alt=""
+                    />
+                    <span>
+                      {item.sample}
+                      <Expand size={15} aria-hidden="true" />
+                    </span>
+                  </button>
+                </CarouselItem>
               ))}
+            </CarouselContent>
+            <div className="rf-sample-nav">
+              <div className="rf-carousel-controls">
+                <button
+                  type="button"
+                  onClick={() => carousel?.scrollPrev(reducedMotion)}
+                  aria-label="Ficha anterior"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => carousel?.scrollNext(reducedMotion)}
+                  aria-label="Próxima ficha"
+                >
+                  <ArrowRight size={20} />
+                </button>
+                {!reducedMotion && (
+                  <button
+                    type="button"
+                    onClick={() => setPlaying(!playing)}
+                    aria-label={playing ? "Pausar amostras" : "Reproduzir amostras"}
+                  >
+                    {playing ? <Pause size={16} /> : <Play size={16} />}
+                  </button>
+                )}
+              </div>
+              <div className="rf-sample-dots" role="group" aria-label="Escolher ficha">
+                {cadernos.map((item, index) => (
+                  <button
+                    type="button"
+                    key={item.title}
+                    aria-label={item.sample}
+                    aria-current={current === index ? "true" : undefined}
+                    onClick={() => carousel?.scrollTo(index, reducedMotion)}
+                  />
+                ))}
+              </div>
             </div>
-          ))}
-        </div>
-        <a className="rf-text-link" href="#oferta">
-          Comparar os planos <ArrowDown size={17} aria-hidden="true" />
+          </Carousel>
+          {sample && (
+            <Dialog.Portal>
+              <Dialog.Overlay className="rf-sample-overlay" />
+              <Dialog.Content
+                className="rf-sample-dialog"
+                onCloseAutoFocus={(event) => {
+                  event.preventDefault();
+                  sampleTrigger.current?.focus({ preventScroll: true });
+                }}
+                aria-describedby={undefined}
+              >
+                <div className="rf-dialog-heading">
+                  <Dialog.Title>{sample.sample}</Dialog.Title>
+                  <Dialog.Close aria-label="Fechar ficha">
+                    <X size={22} />
+                  </Dialog.Close>
+                </div>
+                <img
+                  src={`${asset}/ficha-${(opened ?? 0) + 1}.webp`}
+                  width={650}
+                  height={919}
+                  alt={`Página de exemplo do caderno ${sample.title}`}
+                />
+              </Dialog.Content>
+            </Dialog.Portal>
+          )}
+        </Dialog.Root>
+        <a className="rf-text-link rf-center-link" href="#oferta">
+          Ver o que vem em cada plano <ArrowDown size={17} aria-hidden="true" />
         </a>
       </div>
     </section>
@@ -332,6 +397,9 @@ function RefrigeristaLanding() {
         Pular para o conteúdo
       </a>
       <header className="rf-header">
+        <div className="rf-topline">
+          <Snowflake size={14} aria-hidden="true" /> Material digital em PDF · Conexão Aluno
+        </div>
         <div className="rf-wrap rf-head-inner">
           <a className="rf-brand" href="#topo">
             <span>
@@ -353,7 +421,10 @@ function RefrigeristaLanding() {
           </button>
           <nav id="navegacao" aria-label="Navegação principal" className={menu ? "is-open" : ""}>
             <a href="#amostras" onClick={() => setMenu(false)}>
-              Ver amostras
+              Como funciona
+            </a>
+            <a href="#cadernos" onClick={() => setMenu(false)}>
+              O que você recebe
             </a>
             <a href="#bonus" onClick={() => setMenu(false)}>
               Bônus
@@ -362,7 +433,7 @@ function RefrigeristaLanding() {
               Dúvidas
             </a>
             <a className="rf-head-action" href="#oferta" onClick={() => setMenu(false)}>
-              Ver planos <ArrowRight size={15} />
+              Ver produtos e planos <ArrowRight size={15} aria-hidden="true" />
             </a>
           </nav>
         </div>
@@ -371,31 +442,28 @@ function RefrigeristaLanding() {
         <section id="topo" className="rf-hero">
           <div className="rf-wrap rf-hero-grid">
             <div className="rf-hero-copy">
-              <p className="rf-kicker">
-                <span /> GUIA DIGITAL DE CAMPO
-              </p>
+              <p className="rf-kicker">MAPA VISUAL DO TÉCNICO REFRIGERISTA</p>
               <h1>
-                Encontre o sintoma.
-                <br />
-                <em>Saiba o que verificar primeiro.</em>
+                O equipamento liga, mas não gela? <em>Saiba por onde começar.</em>
               </h1>
               <p className="rf-hero-text">
-                A geladeira liga e não gela? O split pinga pela frente? Abra o{" "}
-                <strong>Mapa Visual do Técnico Refrigerista</strong> no celular e encontre a ficha
-                com os pontos de inspeção e os próximos passos.
+                Abra no celular a ficha do sintoma e veja onde inspecionar, o que conferir primeiro
+                e quais indícios orientam o próximo passo. São{" "}
+                <strong>6 cadernos técnicos em PDF</strong>, da geladeira ao split inverter e à
+                refrigeração comercial.
               </p>
               <div className="rf-hero-actions">
                 <a className="rf-cta" href="#oferta">
-                  Ver os planos <ArrowRight size={18} aria-hidden="true" />
+                  Ver produtos e planos <ArrowRight size={18} aria-hidden="true" />
                 </a>
-                <span className="rf-hero-price">
-                  A partir de <strong>{basicPlan?.price}</strong>
-                </span>
+                <a className="rf-cta rf-cta-secondary" href="#amostras">
+                  Veja como o produto funciona <ArrowDown size={17} aria-hidden="true" />
+                </a>
               </div>
               <p className="rf-hero-note">
-                <Check size={16} aria-hidden="true" />{" "}
+                <ShieldCheck size={16} aria-hidden="true" />{" "}
                 {usesCakto
-                  ? "Material digital em PDF. Pagamento único."
+                  ? `A partir de ${basicPlan.price} · Pagamento único · Checkout pela Cakto`
                   : "Receba os PDFs, confira e só depois pague."}
               </p>
             </div>
@@ -409,6 +477,12 @@ function RefrigeristaLanding() {
               </div>
               <div className="rf-book-shadow rf-book-right">
                 <img src={`${asset}/caderno-5.webp`} alt="" width={420} height={594} />
+              </div>
+              <div className="rf-book-shadow rf-book-far-left" aria-hidden="true">
+                <img src={`${asset}/caderno-3.webp`} alt="" width={420} height={594} />
+              </div>
+              <div className="rf-book-shadow rf-book-far-right" aria-hidden="true">
+                <img src={`${asset}/caderno-6.webp`} alt="" width={420} height={594} />
               </div>
               <div className="rf-book-shadow rf-book-main">
                 <img
@@ -427,7 +501,6 @@ function RefrigeristaLanding() {
                   height={919}
                 />
               </div>
-              <figcaption>Capas e ficha reais do material</figcaption>
             </figure>
           </div>
         </section>
@@ -436,12 +509,15 @@ function RefrigeristaLanding() {
 
         <section className="rf-section rf-workflow" aria-labelledby="consulta">
           <div className="rf-wrap">
-            <div className="rf-section-head">
-              <p className="rf-kicker">
-                <span /> NO MEIO DO ATENDIMENTO
-              </p>
-              <h2 id="consulta">Do relato do cliente à primeira verificação</h2>
+            <div className="rf-section-head rf-center">
+              <h2 id="consulta">O cliente espera. O defeito ainda não está claro.</h2>
+              <p>Na visita, use a ficha do sintoma para organizar a primeira verificação.</p>
             </div>
+            <ul className="rf-symptoms" aria-label="Exemplos de chamados">
+              <li>“A geladeira liga, mas não gela.”</li>
+              <li>“O split começou a pingar.”</li>
+              <li>“O expositor perde frio no horário de pico.”</li>
+            </ul>
             <div className="rf-workflow-grid">
               {[
                 [
@@ -477,9 +553,11 @@ function RefrigeristaLanding() {
 
         <section id="cadernos" className="rf-section rf-cadernos" aria-labelledby="titulo-cadernos">
           <div className="rf-wrap">
-            <div className="rf-section-head">
-              <h2 id="titulo-cadernos">Seis cadernos para consultar em campo</h2>
-              <p>Os seis cadernos estão nos dois planos.</p>
+            <div className="rf-section-head rf-center">
+              <h2 id="titulo-cadernos">O que você recebe nos dois planos</h2>
+              <p>
+                Seis cadernos em PDF, com fichas, diagramas e checklists para consultar em campo.
+              </p>
             </div>
             <div className="rf-volume-grid">
               {cadernos.map((item, index) => (
@@ -517,7 +595,7 @@ function RefrigeristaLanding() {
               <p className="rf-kicker">
                 <span /> CONSULTA EM CAMPO
               </p>
-              <h2 id="campo">O ponto de partida quando o defeito não é óbvio.</h2>
+              <h2 id="campo">Antes de condenar uma peça, confira os indícios.</h2>
               <p>
                 Use as fichas para localizar peças, comparar sinais parecidos e registrar o que foi
                 conferido. Códigos e valores específicos remetem ao manual do equipamento.
@@ -531,12 +609,12 @@ function RefrigeristaLanding() {
 
         <section id="bonus" className="rf-section rf-bonuses">
           <div className="rf-wrap">
-            <div className="rf-section-head">
+            <div className="rf-section-head rf-center">
               <p className="rf-kicker">
                 <span /> INCLUÍDOS NO PLANO COMPLETO
               </p>
-              <h2>10 bônus para usar no próximo chamado</h2>
-              <p>Modelos de atendimento, rotinas de campo e materiais para imprimir.</p>
+              <h2>Do primeiro WhatsApp à entrega do serviço</h2>
+              <p>Receba 10 bônus com materiais que você pode usar no próximo chamado.</p>
             </div>
             <div className="rf-bonus-grid">
               {bonuses.map(([title, description], index) => (
@@ -563,10 +641,10 @@ function RefrigeristaLanding() {
         <section id="oferta" className="rf-section rf-offer" aria-labelledby="titulo-oferta">
           <div className="rf-wrap">
             <div className="rf-section-head rf-offer-head">
-              <h2 id="titulo-oferta">Escolha seu plano</h2>
+              <h2 id="titulo-oferta">Compare os planos e escolha seu material</h2>
               <p>
                 {usesCakto
-                  ? "Escolha uma opção para receber o material em PDF."
+                  ? "Os dois incluem 6 cadernos. Por mais R$ 5,00, o Completo acrescenta 10 bônus de campo."
                   : "Receba os PDFs pelo WhatsApp, confira o material e só depois pague."}
               </p>
             </div>
@@ -578,7 +656,7 @@ function RefrigeristaLanding() {
                 >
                   <div className="rf-price-heading">
                     <h3>Plano {plan.name}</h3>
-                    {index === 1 && <span>6 cadernos + 10 bônus</span>}
+                    <span>{index === 1 ? "6 cadernos + 10 bônus" : "6 cadernos em PDF"}</span>
                   </div>
                   <p className="rf-plan-description">{plan.description}</p>
                   <p className="rf-price-total">{plan.price}</p>
@@ -591,6 +669,12 @@ function RefrigeristaLanding() {
                     ))}
                   </ul>
                   <PlanButton plan={plan} />
+                  {plan.checkout && (
+                    <p className="rf-plan-delivery">
+                      <FileText size={15} aria-hidden="true" /> PDFs no Cakto Members após a
+                      confirmação
+                    </p>
+                  )}
                 </article>
               ))}
             </div>
@@ -601,6 +685,14 @@ function RefrigeristaLanding() {
                   : "As vendas serão disponibilizadas em breve."}
               </p>
             )}
+          </div>
+        </section>
+        <section className="rf-section rf-close" aria-labelledby="titulo-fechamento">
+          <div className="rf-wrap rf-center">
+            <h2 id="titulo-fechamento">No próximo chamado, tenha a ficha certa à mão.</h2>
+            <a className="rf-cta" href="#oferta">
+              Escolher meu plano <ArrowRight size={18} aria-hidden="true" />
+            </a>
           </div>
         </section>
 
@@ -626,7 +718,8 @@ function RefrigeristaLanding() {
       <footer className="rf-footer">
         <div className="rf-wrap">
           <span>
-            <Snowflake size={20} aria-hidden="true" /> Mapa Visual do Técnico Refrigerista
+            <Snowflake size={20} aria-hidden="true" /> Conexão Aluno · Mapa Visual do Técnico
+            Refrigerista
           </span>
           <span>
             <Download size={17} aria-hidden="true" /> Material digital em PDF
