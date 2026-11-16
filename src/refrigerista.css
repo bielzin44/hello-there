@@ -133,9 +133,21 @@
   margin-top: 23px;
 }
 .rf-hero-actions strong {
+  position: relative;
   color: inherit;
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+.rf-hero-actions strong::before {
+  position: absolute;
+  inset-block: 1px;
+  inset-inline-start: -4px;
+  width: 1px;
+  background: currentColor;
+  opacity: 0.25;
+  content: "";
 }
 .rf-cta {
   display: inline-flex;
@@ -144,35 +156,31 @@
   justify-content: center;
   gap: 8px;
   padding: 6px 12px;
-  border: 1px solid #b2c8da;
+  border: 1px solid #97a9b8;
   border-radius: 8px;
-  background: white;
+  background: #fcfdff;
   color: var(--navy);
   text-align: center;
   font-size: 13px;
   font-weight: 700;
   line-height: 1.25;
+  text-decoration: none;
 }
 .rf-cta:hover {
-  background: #eaf3fa;
+  border-color: #637b8f;
+  background: #edf4f8;
 }
 .rf-cta svg {
   flex: none;
 }
 .rf-cta-full {
-  border-color: transparent;
-  background: var(--blue);
-  color: white;
+  border-color: #bb795b;
+  background: #e9b196;
+  color: #352016;
 }
 .rf-cta-full:hover {
-  background: #05466f;
-}
-.rf-price-card-full .rf-cta-full {
-  background: #dceefb;
-  color: var(--navy);
-}
-.rf-price-card-full .rf-cta-full:hover {
-  background: white;
+  border-color: #a26043;
+  background: #f3c6ae;
 }
 .rf-hero .rf-trust {
   display: flex;
@@ -424,6 +432,9 @@
 }
 .rf-price-card .rf-cta {
   margin-top: 16px;
+}
+.rf-price-card-full .rf-cta:focus-visible {
+  outline-color: #f9dccb;
 }
 .rf-price-card-body h4 {
   display: flex;
