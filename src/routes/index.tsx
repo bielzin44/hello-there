@@ -1,85 +1,534 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { BookOpen, Check, ChevronDown, ChevronRight, Download, Menu, Printer, ShieldCheck, X, ArrowLeft, ArrowRight } from "lucide-react";
+import { useState } from "react";
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  Check,
+  ChevronDown,
+  ClipboardList,
+  Download,
+  Expand,
+  FileText,
+  Menu,
+  MessageCircle,
+  Search,
+  Smartphone,
+  Snowflake,
+  Wrench,
+  X,
+} from "lucide-react";
 
-export const Route = createFileRoute("/")({ component: Index });
-const books = [
-  ["📖","Português Completo","Leitura, escrita e compreensão","from-pink-400 to-rose-500"],
-  ["🧮","Matemática Descomplicada","Números, operações e raciocínio","from-blue-400 to-indigo-600"],
-  ["🔤","Sílabas Simples","Primeiros passos na leitura","from-amber-400 to-orange-500"],
-  ["✏️","Sílabas Complexas","Formação e leitura de palavras","from-violet-400 to-purple-600"],
-  ["📝","Produção Textual","Frases, histórias e criatividade","from-emerald-400 to-teal-600"],
-  ["✂️","Coordenação Motora","Grafismos e destreza","from-fuchsia-400 to-pink-600"],
-  ["✍️","Caligrafia Cursiva","Prática gradual da escrita","from-indigo-400 to-blue-600"],
-  ["🎨","Pintura e Cores","Expressão e criatividade","from-yellow-400 to-orange-500"]
+export const Route = createFileRoute("/")({ component: RefrigeristaLanding });
+
+const asset = "/images/refrigerista";
+const contact = import.meta.env["VITE_WHATSAPP_NUMBER"]?.trim().replace(/\D/g, "");
+const message = "Olá! Quero receber o Mapa Visual do Técnico Refrigerista por R$ 19,90.";
+const whatsapp = /^55\d{10,11}$/.test(contact ?? "")
+  ? `https://wa.me/${contact}?text=${encodeURIComponent(message)}`
+  : null;
+
+const cadernos = [
+  {
+    title: "Mapa Visual Geral",
+    pages: 56,
+    description:
+      "Encontre a ficha pelo sintoma em geladeiras, freezers, splits, bebedouros, purificadores e câmaras frias.",
+    sample: "Geladeira não gela",
+  },
+  {
+    title: "Diagnóstico Split",
+    pages: 41,
+    description:
+      "Organize as verificações quando o split gela pouco, pinga, forma gelo ou desliga sozinho.",
+    sample: "Água na unidade interna",
+  },
+  {
+    title: "Mapa Elétrico do Refrigerista",
+    pages: 35,
+    description:
+      "Consulte 30 fichas de medição e interpretação para componentes como capacitores, sensores, relés e compressores.",
+    sample: "Capacitância do capacitor permanente",
+  },
+  {
+    title: "Vazamento, Vácuo e Carga",
+    pages: 32,
+    description:
+      "Siga a investigação do primeiro indício de vazamento ao registro de estanqueidade, vácuo, carga por massa e conferência final.",
+    sample: "Falta de fluido, restrição ou pouco ar?",
+  },
+  {
+    title: "Diagnóstico Inverter na Prática",
+    pages: 36,
+    description:
+      "Relacione alimentação, comando, comunicação e compressor em geladeiras e splits inverter.",
+    sample: "Placa, comunicação ou compressor?",
+  },
+  {
+    title: "Refrigeração Comercial",
+    pages: 40,
+    description:
+      "Investigue perda de rendimento, gelo, drenagem e falhas de controle em câmaras frias, expositores e balcões refrigerados.",
+    sample: "Expositor perde rendimento no pico",
+  },
 ];
-const coverImages = ["/images/capas/portugues-completo.webp","/images/capas/matematica-descomplicada.webp","/images/capas/silabas-simples.webp","/images/capas/silabas-complexas.webp","/images/capas/producao-textual.webp","/images/capas/coordenacao-motora.webp","/images/capas/caligrafia-cursiva.webp","/images/capas/pintura-e-cores.webp"];
+
 const bonuses = [
-  ["📚","Fichas Extra de Português","80 páginas adicionais de atividades"],
-  ["📖","Frases e Textos Prontos","Textos curtos para praticar a leitura"],
-  ["🎲","Jogos Didáticos para Imprimir","Jogos e desafios para aprender"],
-  ["📋","Fichas de Avaliação","Registos para acompanhar competências"],
-  ["🎁","Surpresa Especial","Um recurso adicional da coleção"]
+  ["Quanto cobrar?", "Calcule visita, deslocamento e hora técnica. Inclui modelos de orçamento."],
+  ["WhatsApp do Refrigerista", "20 mensagens prontas, do primeiro contato ao pós-serviço."],
+  [
+    "10 Erros que Viram Retrabalho",
+    "Reconheça decisões que podem transformar um chamado em duas visitas.",
+  ],
+  [
+    "Ordem de Serviço e Entrega",
+    "10 formulários para registrar o chamado, o aceite e o resultado.",
+  ],
+  ["Instalação de Split", "Guia visual da vistoria à entrega da instalação."],
+  [
+    "Atlas Visual de Gelo e Geada",
+    "Compare padrões de gelo e saiba o que registrar antes de concluir.",
+  ],
+  ["Câmara Fria em Campo", "Organize a sequência de degelo, alarmes e histórico de temperatura."],
+  ["Manutenção Preventiva", "Checklists por equipamento e calendário de próximas visitas."],
+  ["10 Chamados Simulados", "Treine a primeira decisão em casos com respostas comentadas."],
+  ["Compatibilidade de Peças", "Confira modelo, códigos e revisão antes de cotar ou comprar."],
 ];
-const faqs = [
-  ["Quando recebo o material?","O produto é digital. Após a confirmação do pagamento, o acesso é disponibilizado através da área de membros da Hotmart."],
-  ["É uma mensalidade?","Não. A oferta foi concebida como pagamento único, sem subscrição."],
-  ["Para que idades é indicado?","Os recursos abrangem competências do pré-escolar e dos primeiros anos do 1.º ciclo. Escolhe as fichas adequadas à criança."],
-  ["Posso imprimir as fichas?","Sim. O kit foi concebido com atividades em PDF prontas a imprimir."],
-  ["Como posso pagar?","Os métodos de pagamento disponíveis são apresentados no checkout seguro da Hotmart."],["E se não gostar do material?","Tens uma garantia incondicional de 15 dias: podes solicitar o reembolso através dos canais de apoio disponibilizados pela Hotmart."],
-];
-function Index() {
- const [open,setOpen]=useState<number|null>(0);
- const [menu,setMenu]=useState(false);
- const [showMobileOffer,setShowMobileOffer]=useState(false);
- useEffect(()=>{
-   const section=document.getElementById("oferta");
-   if(!section)return;
-   let offerVisible=false;
-   const update=()=>setShowMobileOffer(window.scrollY>500&&!offerVisible);
-   const observer=new IntersectionObserver(([entry])=>{offerVisible=entry.isIntersecting;update();},{threshold:0});
-   observer.observe(section);
-   window.addEventListener("scroll",update,{passive:true});
-   update();
-   return ()=>{observer.disconnect();window.removeEventListener("scroll",update)};
- },[]);
- 
- const [activeBook,setActiveBook]=useState(0);
- useEffect(()=>{const timer=window.setInterval(()=>setActiveBook(i=>(i+1)%books.length),4500);return ()=>window.clearInterval(timer)},[]);
- const moveBook=(direction:number)=>setActiveBook(i=>(i+direction+books.length)%books.length);
- const offer=()=>document.getElementById("oferta")?.scrollIntoView({behavior:"smooth"});
- return <div className="min-h-screen bg-white text-[#283f61]">
-  <style>{`
-    @keyframes announcement-scroll { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(-50%,0,0); } }
-    .announcement-track { display: flex; width: max-content; will-change: transform; animation: announcement-scroll 22s linear infinite !important; }
-    .announcement-track > div { flex: 0 0 auto; }
-    @keyframes gentle-cta { 0%, 78%, 100% { transform: translateY(0); } 85% { transform: translateY(-3px); } 92% { transform: translateY(0); } }
-    @keyframes arrow-nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
-    .checkout-cta { animation: gentle-cta 5s ease-in-out infinite; box-shadow: 0 6px 0 #0d6040, 0 12px 24px rgba(15, 91, 67, .16); transition: background-color .2s ease, box-shadow .2s ease; }
-    .checkout-cta:hover { animation-play-state: paused; box-shadow: 0 4px 0 #0d6040, 0 10px 24px rgba(15, 91, 67, .22); }
-    .checkout-cta .cta-arrow { display: inline-block; animation: arrow-nudge 1.8s ease-in-out infinite; }
-    .checkout-cta:focus-visible { outline: 3px solid #e7a06c; outline-offset: 4px; }
-    @media (prefers-reduced-motion: reduce) { .checkout-cta, .checkout-cta .cta-arrow { animation: none !important; transition: none !important; } .announcement-track { animation-duration: 60s !important; } }
-  `}</style>
-  <div className="overflow-hidden border-b border-[#bd490d] bg-[#d95714] py-3 text-white shadow-sm" aria-label="Material digital pronto a imprimir. Bónus exclusivos incluídos. Acesso após confirmação do pagamento. Garantia de 15 dias. Pagamento seguro com MB WAY e Multibanco.">
-    <div className="announcement-track flex w-max items-center" aria-hidden="true">
-      {Array.from({length:2},(_,i)=><div key={i} className="flex shrink-0 items-center whitespace-nowrap text-[13px] font-bold leading-5 tracking-[0.01em] sm:text-[15px]">
-        <span className="px-5">📚 MATERIAL DIGITAL PRONTO A IMPRIMIR</span>
-        <span className="px-5">🎁 BÓNUS EXCLUSIVOS INCLUÍDOS</span>
-        <span className="px-5">⚡ ACESSO DIGITAL APÓS CONFIRMAÇÃO DO PAGAMENTO</span>
-        <span className="px-5">🛡️ GARANTIA TOTAL DE 15 DIAS</span>
-        <span className="px-5">💳 PAGAMENTO SEGURO — MB WAY E MULTIBANCO</span>
-      </div>)}
-    </div>
-  </div>
-  <header className="sticky top-0 z-30 border-b border-[#dbeafb] bg-white/95 backdrop-blur"><div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3"><a href="#" className="flex items-center gap-2 text-xl font-black text-[#2474b5]"><span className="rounded-xl bg-[#ffe4a0] p-2"><BookOpen size={22}/></span>Conexão <span className="text-[#ef8d72]">Aluno</span></a><nav className="hidden gap-7 text-sm font-bold text-slate-600 md:flex"><a href="#conteudos">Os cadernos</a><a href="#comparacao">Vantagens</a><a href="#bonus">Bónus</a><a href="#perguntas">Dúvidas</a></nav><button onClick={offer} className="checkout-cta hidden rounded-full bg-[#16885a] px-5 py-3 text-sm font-black text-white md:block">VER PACOTES →</button><button onClick={()=>setMenu(!menu)} className="md:hidden" aria-label="Abrir menu">{menu?<X/>:<Menu/>}</button></div>{menu&&<nav className="grid gap-3 border-t p-5 font-bold md:hidden">{[["Os cadernos","#conteudos"],["Vantagens","#comparacao"],["Bónus","#bonus"],["Preços","#oferta"]].map(([name,href])=><a href={href} key={href} onClick={()=>setMenu(false)}>{name}</a>)}</nav>}</header>
-  <main>
-   <section className="bg-[#fff8eb]"><div className="mx-auto grid max-w-6xl items-center gap-9 px-5 py-12 lg:grid-cols-[1.05fr_0.95fr] lg:py-16"><div><span className="inline-flex rounded-full bg-white px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-[#2474b5]">🇵🇹 Kit educativo para Portugal</span><h1 className="mt-5 max-w-xl text-4xl font-black leading-[1.12] tracking-tight text-[#23466f] sm:text-5xl">Milhares de atividades para ajudar a tua criança a <span className="text-[#ef8d72]">aprender com confiança!</span></h1><p className="mt-5 max-w-xl text-lg leading-relaxed text-slate-700">Leitura, escrita, sílabas, Matemática e muito mais, num <strong>kit completo, organizado e pronto a imprimir.</strong> Mais tempo para acompanhar a aprendizagem, menos tempo à procura de fichas.</p><div className="mt-6 grid gap-2 text-sm font-semibold text-slate-700 sm:grid-cols-2">{["Atividades organizadas por temas","Para usar em casa ou na escola","Fichas digitais para imprimir","Pagamento único, sem mensalidades"].map(t=><span key={t} className="flex items-center gap-2"><Check size={18} className="shrink-0 text-[#16885a]"/>{t}</span>)}</div><button onClick={offer} className="mt-7 w-full rounded-xl bg-[#16885a] px-8 py-4 text-base font-black text-white shadow-[0_5px_0_#0d6040] transition hover:-translate-y-0.5 sm:w-auto">QUERO VER OS PACOTES <ChevronRight className="inline" size={20}/></button><p className="mt-4 text-xs font-semibold text-slate-500">✓ Digital &nbsp; ✓ Pronto a imprimir &nbsp; ✓ Sem mensalidades</p></div><div className="relative mx-auto w-full max-w-lg"><div className="relative overflow-hidden rounded-[28px] border border-[#f2e1ca] bg-white p-5 shadow-2xl sm:p-7"><div className="absolute -right-12 -top-12 h-44 w-44 rounded-full bg-[#fff0b9] blur-2xl"/><div className="absolute -bottom-12 -left-12 h-40 w-40 rounded-full bg-[#ddf3ff] blur-2xl"/><div className="relative text-center"><span className="rounded-full bg-[#fff0b9] px-4 py-2 text-xs font-black uppercase tracking-wide text-[#93501d]">📚 O teu kit de atividades</span><h2 className="mt-4 text-2xl font-black text-[#23466f] sm:text-3xl">Um só kit. Muitas formas de aprender.</h2><p className="mt-2 text-sm text-slate-600">Explora as capas e descobre o que cada caderno oferece.</p></div><div className="relative mt-5 flex h-72 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#dff2ff] via-[#fff1c9] to-[#ffe3ed] sm:h-80"><div className="absolute -left-5 top-5 h-24 w-24 rounded-full border-[12px] border-white/50"/><div className="absolute -right-7 bottom-3 h-32 w-32 rounded-full border-[16px] border-white/50"/>{[-1,1].map(offset=>{const i=(activeBook+offset+books.length)%books.length;return <img key={offset} src={coverImages[i]} alt={books[i][1]} className={`absolute h-[62%] w-[39%] object-contain opacity-65 drop-shadow-lg transition-all duration-500 ${offset<0?"left-[-5%] -rotate-12":"right-[-5%] rotate-12"}`}/>})}<img key={activeBook} src={coverImages[activeBook]} alt={books[activeBook][1]} className="relative z-10 h-[88%] w-[62%] object-contain drop-shadow-2xl" /><button onClick={()=>moveBook(-1)} aria-label="Caderno anterior" className="absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/95 p-2 text-[#2474b5] shadow-md"><ArrowLeft size={19}/></button><button onClick={()=>moveBook(1)} aria-label="Próximo caderno" className="absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/95 p-2 text-[#2474b5] shadow-md"><ArrowRight size={19}/></button></div><div className="relative mt-4 min-h-20 text-center" aria-live="polite"><p className="text-lg font-black text-[#23466f]">{books[activeBook][1]}</p><p className="mt-1 text-sm text-slate-600">{books[activeBook][2]}</p></div><div className="mt-3 flex items-center justify-center gap-2">{books.map((book,i)=><button key={book[1]} onClick={()=>setActiveBook(i)} aria-label={`Ver ${book[1]}`} aria-current={activeBook===i?"true":undefined} className={`h-2.5 rounded-full transition-all ${activeBook===i?"w-7 bg-[#287fc0]":"w-2.5 bg-slate-300"}`}/>) }</div></div></div></div></section><section id="comparacao" className="bg-white px-5 py-16"><div className="mx-auto max-w-5xl"><h2 className="text-center text-3xl font-black text-[#23466f] sm:text-4xl">Fichas soltas ou um kit completo?</h2><p className="mt-3 text-center text-slate-600">Compara a procura de fichas dispersas com a praticidade de ter tudo reunido num único kit.</p><div className="mt-10 grid gap-6 md:grid-cols-2"><div className="rounded-3xl border-2 border-rose-200 bg-white p-7 shadow-lg"><h3 className="mb-6 text-xl font-black text-rose-800">✕ Fichas aleatórias</h3>{[["Organização","20%"],["Facilidade de consulta","25%"],["Variedade num só lugar","15%"],["Tempo de preparação","90%"]].map(([label,width])=><div key={label} className="mb-5"><div className="mb-2 flex justify-between text-sm font-bold"><span>{label}</span><span className="text-red-500">{label==="Tempo de preparação"?"Elevado":"Limitada"}</span></div><div className="h-3 rounded-full bg-slate-100"><div className="h-3 rounded-full bg-rose-400" style={{width}}/></div></div>)}<p className="text-xs italic text-slate-500">Barras meramente ilustrativas da experiência de utilização; não representam dados de eficácia.</p></div><div className="relative rounded-3xl border-2 border-[#75caa3] bg-white p-7 shadow-lg"><span className="absolute -top-4 right-5 rounded-full bg-[#16885a] px-5 py-2 text-xs font-black text-white">RECOMENDADO</span><h3 className="mb-6 text-xl font-black text-[#116b47]">✓ Kit Conexão Aluno</h3>{[["Organização","95%"],["Facilidade de consulta","90%"],["Variedade num só lugar","95%"],["Tempo de preparação","20%"]].map(([label,width])=><div key={label} className="mb-5"><div className="mb-2 flex justify-between text-sm font-bold"><span>{label}</span><span className="text-[#16885a]">{label==="Tempo de preparação"?"Reduzido":"Organizada"}</span></div><div className="h-3 rounded-full bg-slate-100"><div className="h-3 rounded-full bg-[#16885a]" style={{width}}/></div></div>)}<p className="text-xs italic text-slate-500">Barras ilustrativas de características do kit, sem alegação de resultados garantidos.</p></div></div><div className="mt-8 text-center"><button onClick={offer} className="rounded-xl bg-[#16885a] px-8 py-4 font-black text-white shadow-lg">QUERO CONHECER O KIT →</button></div></div></section><section id="conteudos" className="bg-[#f4f0ff] py-16"><div className="mx-auto max-w-6xl px-5"><div className="text-center"><span className="text-xs font-black uppercase tracking-widest text-[#a15b24]">Explora a coleção</span><h2 className="mt-3 text-3xl font-black text-[#23466f] sm:text-4xl">Conhece cada caderno por dentro da oferta</h2><p className="mx-auto mt-3 max-w-2xl text-slate-600">As capas originais, uma de cada vez, com uma descrição clara do que vais trabalhar.</p></div><div className="mt-9 grid items-center gap-7 rounded-3xl border border-[#f2e1ca] bg-white p-5 shadow-lg md:grid-cols-[0.9fr_1.1fr] md:p-9"><div className="relative flex h-72 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-sky-100 via-pink-100 to-amber-100 sm:h-96"><img key={activeBook} src={coverImages[activeBook]} alt={`Capa de ${books[activeBook][1]}`} className="h-[90%] w-[85%] object-contain drop-shadow-2xl"/><button onClick={()=>moveBook(-1)} aria-label="Anterior" className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white p-2 text-[#2474b5] shadow"><ArrowLeft/></button><button onClick={()=>moveBook(1)} aria-label="Seguinte" className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white p-2 text-[#2474b5] shadow"><ArrowRight/></button></div><div className="min-w-0"><p className="text-xs font-black uppercase tracking-widest text-amber-700">Caderno {activeBook+1} de {books.length}</p><h3 className="mt-3 text-3xl font-black text-[#23466f]">{books[activeBook][1]}</h3><p className="mt-4 text-lg leading-relaxed text-slate-600">{books[activeBook][2]}. Um recurso para escolheres atividades adequadas à fase de aprendizagem da criança, com propostas práticas para imprimir e explorar em casa ou na escola.</p><div className="mt-6 flex flex-wrap gap-2">{["Fichas digitais","Pronto a imprimir","Aprendizagem prática"].map(t=><span key={t} className="rounded-full bg-[#eaf5ff] px-3 py-2 text-xs font-bold text-[#2474b5]">✓ {t}</span>)}</div><div className="mt-7 flex flex-wrap items-center gap-3"><button onClick={()=>moveBook(-1)} className="rounded-xl border border-slate-200 px-4 py-3 font-bold text-[#2474b5]">← Anterior</button><button onClick={()=>moveBook(1)} className="rounded-xl bg-[#2474b5] px-5 py-3 font-bold text-white">Próximo caderno →</button></div></div></div><div className="mt-5 flex gap-3 overflow-x-auto pb-3">{books.map((book,i)=><button key={book[1]} onClick={()=>setActiveBook(i)} aria-label={`Selecionar ${book[1]}`} className={`flex w-28 shrink-0 flex-col items-center rounded-xl border-2 p-2 transition sm:w-32 ${activeBook===i?"border-blue-700 bg-white shadow-md":"border-transparent bg-white/70 hover:border-blue-200"}`}><img src={coverImages[i]} alt="" loading="lazy" className="h-24 w-full object-contain"/><span className="mt-2 line-clamp-2 text-center text-xs font-extrabold leading-tight text-[#23466f]">{book[1]}</span></button>)}</div><div className="mt-7 text-center"><button onClick={offer} className="rounded-xl bg-[#16885a] px-8 py-4 font-black text-white shadow-md">QUERO TER ACESSO AOS CADERNOS <ChevronRight className="inline" size={18}/></button></div></div></section><section id="bonus" className="bg-[#fff1f5] px-5 py-16"><div className="mx-auto max-w-5xl"><div className="text-center"><span className="rounded-full bg-[#fff0c9] px-4 py-2 text-xs font-black uppercase tracking-wide text-amber-800">🎁 Presentes incluídos</span><h2 className="mt-5 text-3xl font-black text-[#23466f] sm:text-4xl">Recebe também 5 bónus especiais</h2><p className="mx-auto mt-3 max-w-xl text-slate-600">Recursos complementares para tornar a prática mais variada, sem custo adicional.</p></div><div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{bonuses.map(([emoji,title,desc],i)=><article key={title} className="flex min-h-40 items-start gap-4 rounded-2xl border border-[#f6dfc4] bg-white p-5 shadow-sm"><div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-100 to-pink-100 text-4xl">{emoji}</div><div className="min-w-0"><span className="text-xs font-extrabold uppercase tracking-wide text-amber-700">Bónus {String(i+1).padStart(2,"0")}</span><h3 className="mt-1 text-base font-black leading-snug text-[#23466f]">{title}</h3><p className="mt-2 text-sm leading-relaxed text-slate-600">{desc}</p><p className="mt-3 text-xs font-black text-[#116b47]">✓ INCLUÍDO NO PACOTE</p></div></article>)}</div><div className="mt-8 text-center"><button onClick={offer} className="rounded-xl bg-[#16885a] px-8 py-4 font-black text-white shadow-md">QUERO OS MEUS MATERIAIS <ChevronRight className="inline" size={18}/></button></div></div></section><section id="testemunhos" className="bg-[#fff8eb] px-5 py-16"><div className="mx-auto max-w-6xl"><div className="text-center"><span className="inline-flex items-center gap-2 rounded-full bg-[#e9f4ff] px-4 py-2 text-xs font-extrabold uppercase tracking-wide text-[#2474b5]">💬 Experiências imaginadas</span><h2 className="mt-4 text-3xl font-black text-[#23466f] sm:text-4xl">Como estes materiais podem facilitar o dia a dia</h2><p className="mx-auto mt-3 max-w-2xl leading-relaxed text-slate-600">Testemunhos ilustrativos sobre situações comuns de pais e professores. São exemplos fictícios, não avaliações de clientes nem transcrições de feedback recebido.</p></div><div className="mt-9 grid gap-4 md:grid-cols-3">{[{icon:"📚",tag:"Exemplo ilustrativo · Professor(a)",quote:"Ter as atividades organizadas por tema ajudaria a preparar as aulas sem perder tanto tempo à procura de fichas.",detail:"Organização das aulas"},{icon:"🏡",tag:"Exemplo ilustrativo · Família",quote:"Gostaria de ter fichas prontas a imprimir para acompanhar a leitura e a escrita da minha criança em casa.",detail:"Aprender em família"},{icon:"🎨",tag:"Exemplo ilustrativo · Educador(a)",quote:"A variedade de propostas de leitura, matemática e criatividade daria mais opções para adaptar as atividades às crianças.",detail:"Variedade de recursos"}].map((item,i)=><article key={item.detail} className="rounded-3xl border border-[#eadfd3] bg-white p-6 shadow-[0_8px_24px_rgba(35,70,111,0.06)]"><div className="flex items-center justify-between"><span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eaf5ff] text-2xl" aria-hidden="true">{item.icon}</span><span className="rounded-full bg-[#fff0c9] px-3 py-1.5 text-[11px] font-bold text-[#805b24]">Fictício</span></div><p className="mt-5 text-xs font-extrabold tracking-wide text-[#2474b5]">{item.tag}</p><blockquote className="mt-3 text-base leading-relaxed text-[#23466f]">“{item.quote}”</blockquote><p className="mt-5 border-t border-[#f0e7de] pt-4 text-sm font-bold text-[#16885a]">✓ {item.detail}</p></article>)}</div><div className="mt-8 text-center"><button type="button" onClick={offer} className="rounded-xl bg-[#16885a] px-7 py-4 font-black text-white shadow-[0_4px_0_#0d6040] transition hover:bg-[#116b47]">CONHECER OS PACOTES <ChevronRight className="inline" size={18}/></button></div></div></section><section id="oferta" className="bg-gradient-to-br from-[#2474b5] via-[#377dc6] to-[#7263b8] px-5 py-20 text-white"><div className="mx-auto max-w-5xl"><h2 className="text-center text-3xl font-black sm:text-4xl">Escolhe o teu pacote educativo</h2><p className="mt-3 text-center text-[#e6f5ff]">Pagamento único • Kit digital • Sem mensalidades</p><div className="mt-12 grid gap-7 md:grid-cols-2">{[{name:"PLANO ESSENCIAL",title:"Kit Essencial",old:"",price:"€7,00",items:["2.500 atividades educativas","Português, Matemática e Sílabas","Textos, Caligrafia e Ortografia","Bónus exclusivos","Acesso aos materiais na área de membros"]},{name:"PACOTE COMPLETO",title:"Kit Completo",old:"",price:"€14,90",items:["5.000 atividades educativas","Tudo o que está no Plano Essencial","Sílabas simples e complexas","Ciências, História, Geografia e Artes","Consciência fonológica e formação de palavras","Coordenação motora e caligrafia","Cinco bónus","Proposta de acesso vitalício"]}].map((p,i)=><article key={p.name} className={`relative flex flex-col rounded-3xl bg-white p-5 sm:p-8 text-slate-800 shadow-2xl ${i===1?"border-4 border-[#ffe29a]":""}`}>{i===1&&<span className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#ffe29a] px-4 py-2 text-xs font-black text-[#23466f] sm:px-6 sm:text-sm">⭐ PACOTE COMPLETO</span>}<div className="text-center"><p className="text-sm font-black text-[#287fc0]">{p.name}</p><h3 className="mt-2 text-2xl font-black">{p.title}</h3>{p.old&&<p className="mt-6 text-slate-400 line-through">De {p.old}</p>}<p className="text-5xl font-black text-[#2474b5] sm:text-6xl">{p.price}</p><p className="mt-1 text-sm text-slate-500">pagamento único</p></div><div className="my-7 h-px bg-slate-200"/><div className="flex-1 space-y-4">{p.items.map(t=><p key={t} className="flex gap-3 text-sm font-semibold"><Check size={20} className="shrink-0 text-[#16885a]"/>{t}</p>)}</div><a href={i===0?"https://pay.hotmart.com/I108375729T":"https://pay.hotmart.com/I108375729T?off=a62qfkzo"} className="checkout-cta mt-8 flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-[#16885a] px-3 py-4 text-center text-sm font-black leading-snug text-white hover:bg-[#116b47] sm:min-h-16 sm:gap-3 sm:px-4 sm:text-base"><span>{i===0?"QUERO AS 2.500 ATIVIDADES":"QUERO AS 5.000 ATIVIDADES"}</span><ArrowRight className="cta-arrow shrink-0" size={21}/></a><div className="mt-5 rounded-2xl border border-[#cde8dc] bg-[#f1fbf5] px-2 py-4 text-center sm:px-3"><p className="flex items-center justify-center gap-2 text-sm font-extrabold text-[#24533e]"><ShieldCheck size={18} className="shrink-0 text-[#16885a]"/>Pagamento seguro</p><div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs font-bold text-[#23466f]"><span className="rounded-full border border-[#c7e5d5] bg-white px-3 py-1.5">MB WAY</span><span className="rounded-full border border-[#c7e5d5] bg-white px-3 py-1.5">Multibanco</span><span className="rounded-full border border-[#c7e5d5] bg-white px-3 py-1.5">Cartão</span></div><p className="mt-3 text-xs font-semibold text-slate-600">✓ Pagamento único &nbsp; • &nbsp; ✓ Garantia de 15 dias</p></div></article>)}</div></div></section>
-   <section id="garantia" className="bg-[#eefbf3] px-5 py-16"><div className="mx-auto flex max-w-4xl flex-col items-center gap-7 rounded-3xl border-2 border-[#c6efd7] bg-white p-7 text-center shadow-sm sm:p-10 md:flex-row md:text-left"><div className="flex h-28 w-28 shrink-0 flex-col items-center justify-center rounded-full border-4 border-[#16885a] bg-[#e8f9ee] text-[#116b47]"><ShieldCheck size={40}/><span className="mt-1 text-xs font-black">15 DIAS</span></div><div><span className="text-xs font-black uppercase tracking-widest text-[#116b47]">Compra sem risco</span><h2 className="mt-2 text-2xl font-black text-[#23466f] sm:text-3xl">Garantia INCONDICIONAL de 15 dias</h2><p className="mt-4 leading-relaxed text-slate-700">Se em 15 dias não adorares o material, podes solicitar o reembolso pelos canais da Hotmart e receber <strong>100% do teu dinheiro</strong>. De acordo com as condições da garantia anunciada.</p><p className="mt-3 text-xs text-slate-500">Para solicitar reembolso, utiliza os canais de apoio e reembolso disponibilizados pela Hotmart.</p></div></div></section><section id="perguntas" className="mx-auto max-w-3xl px-5 py-20"><h2 className="text-center text-3xl font-black text-[#23466f]">Perguntas frequentes</h2><div className="mt-9 space-y-3">{faqs.map(([q,a],i)=><div key={q} className="rounded-2xl border border-[#dbeafb] bg-white shadow-sm"><button onClick={()=>setOpen(open===i?null:i)} aria-expanded={open===i} className="flex w-full items-center justify-between gap-3 p-5 text-left font-bold text-[#2474b5]">{q}<ChevronDown className={open===i?"rotate-180":""} size={20}/></button>{open===i&&<p className="px-5 pb-5 text-sm leading-relaxed text-slate-600">{a}</p>}</div>)}</div></section>
-   <section className="bg-[#2474b5] px-5 py-16 text-center text-white"><div className="text-5xl">🌟 📚 🌟</div><h2 className="mx-auto mt-5 max-w-2xl text-3xl font-black">Mais recursos para acompanhar cada etapa da aprendizagem</h2><button onClick={offer} className="mt-7 rounded-xl bg-[#16885a] px-9 py-4 font-black text-white">VER OS PACOTES →</button></section>
-  </main>
-  {showMobileOffer&&<div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#cde8dc] bg-white/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-8px_28px_rgba(35,70,111,0.12)] backdrop-blur-md md:hidden"><button type="button" onClick={offer} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#16885a] px-3 py-3 text-sm font-extrabold text-white shadow-[0_3px_0_#0d6040] active:translate-y-0.5" aria-label="Ver pacotes a partir de sete euros"><span>Ver pacotes a partir de €7,00</span><ArrowRight size={18} aria-hidden="true"/></button></div>}
-  <footer className="bg-[#23466f] px-5 py-9 text-center text-sm text-[#d9edff]"><strong className="text-white">Conexão Aluno</strong><p className="mt-2">Kit de atividades educativas • Portugal</p><p className="mt-3 text-xs">© 2026 Conexão Aluno. Resultados de aprendizagem variam de criança para criança.</p></footer>
 
- </div>;
+const faq = [
+  [
+    "O que eu recebo?",
+    "São 6 cadernos técnicos e 10 bônus em PDF. O kit reúne 350 páginas de conteúdo, além das capas.",
+  ],
+  [
+    "Como recebo e quando pago?",
+    "Chame no WhatsApp. Você recebe os PDFs, abre e confere o material e só depois faz o pagamento único de R$ 19,90.",
+  ],
+  [
+    "Preciso imprimir?",
+    "Você pode consultar os PDFs pelo celular ou imprimir as fichas que quiser em papel A4.",
+  ],
+  [
+    "Serve para quem está começando?",
+    "Sim. As fichas ajudam a organizar as primeiras verificações e os indícios. Em testes ou intervenções, siga a documentação e os procedimentos de segurança do equipamento.",
+  ],
+  [
+    "Quais equipamentos aparecem no Mapa?",
+    "Geladeiras, freezers, splits, bebedouros, purificadores, câmaras frias, expositores e balcões refrigerados. Os cadernos incluem fichas dedicadas a diagnóstico elétrico e inverter.",
+  ],
+];
+
+function Cta({
+  label = "Quero receber pelo WhatsApp",
+  offer = false,
+}: {
+  label?: string;
+  offer?: boolean;
+}) {
+  if (offer && !whatsapp) {
+    return (
+      <span className="rf-cta unavailable" aria-disabled="true">
+        <MessageCircle size={20} /> WhatsApp em breve
+      </span>
+    );
+  }
+
+  return (
+    <a
+      className="rf-cta"
+      href={whatsapp ?? "#oferta"}
+      target={whatsapp ? "_blank" : undefined}
+      rel={whatsapp ? "noopener noreferrer" : undefined}
+    >
+      <MessageCircle size={20} aria-hidden="true" /> {whatsapp ? label : "Ver detalhes da oferta"}{" "}
+      <ArrowRight className="cta-arrow" size={19} aria-hidden="true" />
+    </a>
+  );
+}
+
+function RefrigeristaLanding() {
+  const [book, setBook] = useState(0);
+  const [menu, setMenu] = useState(false);
+  const current = cadernos[book] ?? cadernos[0]!;
+  const moveBook = (direction: number) =>
+    setBook((previous) => (previous + direction + cadernos.length) % cadernos.length);
+
+  return (
+    <div className="rf-site">
+      <a href="#conteudo-principal" className="rf-skip">
+        Pular para o conteúdo
+      </a>
+      <header className="rf-header">
+        <div className="rf-wrap rf-head-inner">
+          <a className="rf-brand" href="#topo">
+            <span>
+              <Snowflake size={22} aria-hidden="true" />
+            </span>
+            <div>
+              Mapa Visual <small>DO TÉCNICO REFRIGERISTA</small>
+            </div>
+          </a>
+          <button
+            className="rf-menu"
+            type="button"
+            onClick={() => setMenu(!menu)}
+            aria-expanded={menu}
+            aria-controls="navegacao"
+            aria-label={menu ? "Fechar menu" : "Abrir menu"}
+          >
+            {menu ? <X /> : <Menu />}
+          </button>
+          <nav id="navegacao" aria-label="Navegação principal" className={menu ? "is-open" : ""}>
+            <a href="#cadernos" onClick={() => setMenu(false)}>
+              Os cadernos
+            </a>
+            <a href="#bonus" onClick={() => setMenu(false)}>
+              Bônus
+            </a>
+            <a href="#perguntas" onClick={() => setMenu(false)}>
+              Dúvidas
+            </a>
+            <a className="rf-head-action" href="#oferta" onClick={() => setMenu(false)}>
+              Ver oferta <ArrowRight size={15} />
+            </a>
+          </nav>
+        </div>
+      </header>
+      <main id="conteudo-principal">
+        <section id="topo" className="rf-hero">
+          <div className="rf-wrap rf-hero-grid">
+            <div className="rf-hero-copy">
+              <p className="rf-kicker">
+                <span /> GUIA DIGITAL DE CAMPO
+              </p>
+              <h1>
+                Encontre o sintoma.
+                <br />
+                <em>Saiba o que verificar primeiro.</em>
+              </h1>
+              <p className="rf-hero-text">
+                A geladeira liga e não gela? O split pinga pela frente? Abra o{" "}
+                <strong>Mapa Visual do Técnico Refrigerista</strong> no celular e encontre a ficha
+                com os pontos de inspeção e os próximos passos.
+              </p>
+              <div className="rf-hero-actions">
+                <Cta />
+                <strong className="rf-hero-price">R$ 19,90</strong>
+              </div>
+              <p className="rf-hero-note">
+                <Check size={16} aria-hidden="true" /> Receba os PDFs, confira e só depois pague.
+              </p>
+            </div>
+            <figure
+              className="rf-product"
+              aria-label="Mockup dos cadernos e de uma ficha em um celular"
+            >
+              <div className="rf-product-grid" aria-hidden="true" />
+              <span className="rf-product-label">
+                <BookOpen size={14} /> COLEÇÃO DIGITAL
+              </span>
+              <div className="rf-book-shadow rf-book-left">
+                <img src={`${asset}/caderno-2.webp`} alt="" width={420} height={594} />
+              </div>
+              <div className="rf-book-shadow rf-book-right">
+                <img src={`${asset}/caderno-5.webp`} alt="" width={420} height={594} />
+              </div>
+              <div className="rf-book-shadow rf-book-main">
+                <img
+                  src={`${asset}/caderno-1.webp`}
+                  alt="Capa do Mapa Visual do Técnico Refrigerista"
+                  width={420}
+                  height={594}
+                  fetchPriority="high"
+                />
+              </div>
+              <div className="rf-phone">
+                <img
+                  src={`${asset}/ficha-1.webp`}
+                  alt="Ficha Geladeira não gela exibida em um celular"
+                  width={650}
+                  height={919}
+                />
+              </div>
+              <figcaption>Capas e ficha reais do material</figcaption>
+            </figure>
+          </div>
+          <div className="rf-wrap rf-stats" aria-label="Conteúdo da coleção">
+            <div>
+              <BookOpen />
+              <span>
+                <strong>6 cadernos técnicos</strong>
+                <small>Diagnóstico doméstico e comercial</small>
+              </span>
+            </div>
+            <div>
+              <ClipboardList />
+              <span>
+                <strong>10 bônus práticos</strong>
+                <small>Do orçamento à entrega técnica</small>
+              </span>
+            </div>
+            <div>
+              <Smartphone />
+              <span>
+                <strong>350 páginas de conteúdo</strong>
+                <small>PDFs para celular e impressão A4</small>
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <section className="rf-section rf-workflow" aria-labelledby="consulta">
+          <div className="rf-wrap">
+            <div className="rf-section-head">
+              <p className="rf-kicker">
+                <span /> NO MEIO DO ATENDIMENTO
+              </p>
+              <h2 id="consulta">Do relato do cliente à primeira verificação</h2>
+            </div>
+            <div className="rf-workflow-grid">
+              {[
+                [
+                  Search,
+                  "Escolha o equipamento",
+                  "Abra o índice e localize o sintoma mais próximo do que você está observando.",
+                ],
+                [
+                  Wrench,
+                  "Localize os pontos de inspeção",
+                  "Veja no desenho onde olhar e quais indícios ajudam a orientar o próximo passo.",
+                ],
+                [
+                  ClipboardList,
+                  "Registre o que encontrou",
+                  "Anote as observações e procure a ficha técnica seguinte quando precisar aprofundar.",
+                ],
+              ].map(([Icon, title, text], index) => {
+                const StepIcon = Icon as typeof Search;
+                return (
+                  <article key={String(title)}>
+                    <span className="rf-step-icon">
+                      <StepIcon size={22} aria-hidden="true" />
+                    </span>
+                    <span className="rf-step-no">0{index + 1}</span>
+                    <h3>{String(title)}</h3>
+                    <p>{String(text)}</p>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section id="cadernos" className="rf-section rf-cadernos">
+          <div className="rf-wrap">
+            <div className="rf-section-head">
+              <p className="rf-kicker">
+                <span /> POR DENTRO DA COLEÇÃO
+              </p>
+              <h2>Explore os seis cadernos</h2>
+              <p>Selecione uma capa e veja uma ficha real de cada volume.</p>
+            </div>
+            <div className="rf-reader">
+              <div className="rf-reader-art">
+                <img
+                  className="rf-reader-cover"
+                  src={`${asset}/caderno-${book + 1}.webp`}
+                  alt={`Capa de ${current.title}`}
+                  width={420}
+                  height={594}
+                  loading="lazy"
+                />
+                <img
+                  className="rf-reader-sheet"
+                  src={`${asset}/ficha-${book + 1}.webp`}
+                  alt={`Exemplo de ficha: ${current.sample}`}
+                  width={650}
+                  height={919}
+                  loading="lazy"
+                />
+              </div>
+              <div className="rf-reader-copy" aria-live="polite">
+                <p className="rf-reader-label">CADERNO {String(book + 1).padStart(2, "0")} DE 06</p>
+                <h3>{current.title}</h3>
+                <p>{current.description}</p>
+                <span className="rf-reader-pages">
+                  <FileText size={16} aria-hidden="true" /> {current.pages} páginas de conteúdo
+                </span>
+                <a
+                  className="rf-sample-link"
+                  href={`${asset}/ficha-${book + 1}.webp`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Expand size={16} aria-hidden="true" /> Ampliar ficha de exemplo
+                </a>
+                <div className="rf-reader-nav">
+                  <button type="button" onClick={() => moveBook(-1)} aria-label="Caderno anterior">
+                    <ArrowLeft size={21} />
+                  </button>
+                  <button type="button" onClick={() => moveBook(1)} aria-label="Próximo caderno">
+                    <ArrowRight size={21} />
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="rf-thumbs" aria-label="Selecionar caderno">
+              {cadernos.map((item, index) => (
+                <button
+                  type="button"
+                  key={item.title}
+                  onClick={() => setBook(index)}
+                  aria-pressed={book === index}
+                >
+                  <img
+                    src={`${asset}/caderno-${index + 1}.webp`}
+                    alt=""
+                    width={420}
+                    height={594}
+                    loading="lazy"
+                  />
+                  <span>{item.title}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="rf-section rf-context" aria-labelledby="campo">
+          <div className="rf-wrap rf-context-grid">
+            <figure className="rf-tech-photo">
+              <img
+                src={`${asset}/tecnico.webp`}
+                alt="Imagem ilustrativa de um técnico segurando a capa do Mapa Visual em uma oficina de refrigeração"
+                width={1000}
+                height={667}
+                loading="lazy"
+              />
+              <figcaption>Imagem ilustrativa · material entregue em PDF</figcaption>
+            </figure>
+            <div>
+              <p className="rf-kicker">
+                <span /> CONSULTA EM CAMPO
+              </p>
+              <h2 id="campo">O ponto de partida quando o defeito não é óbvio.</h2>
+              <p>
+                Use as fichas para localizar peças, comparar sinais parecidos e registrar o que foi
+                conferido. Códigos e valores específicos remetem ao manual do equipamento.
+              </p>
+              <a className="rf-text-link" href="#oferta">
+                Ver o que vem no kit <ArrowDown size={17} aria-hidden="true" />
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section id="bonus" className="rf-section rf-bonuses">
+          <div className="rf-wrap">
+            <div className="rf-section-head">
+              <p className="rf-kicker">
+                <span /> INCLUÍDOS NO KIT
+              </p>
+              <h2>10 bônus para usar no próximo chamado</h2>
+              <p>Modelos de atendimento, rotinas de campo e materiais para imprimir.</p>
+            </div>
+            <div className="rf-bonus-grid">
+              {bonuses.map(([title, description], index) => (
+                <article className="rf-bonus-card" key={title}>
+                  <div className="rf-bonus-art">
+                    <img
+                      src={`${asset}/bonus-${index + 1}.webp`}
+                      alt={`Capa de ${title}`}
+                      width={300}
+                      height={424}
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="rf-bonus-text">
+                    <h3>{title}</h3>
+                    <p>{description}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="oferta" className="rf-section rf-offer">
+          <div className="rf-wrap rf-offer-grid">
+            <div>
+              <p className="rf-kicker">
+                <span /> ENVIO PELO WHATSAPP
+              </p>
+              <h2>Receba, confira e só depois pague.</h2>
+              <ol className="rf-order">
+                <li>
+                  <span>1</span> Chame no WhatsApp e peça o Mapa Visual.
+                </li>
+                <li>
+                  <span>2</span> Receba os PDFs e confira o conteúdo.
+                </li>
+                <li>
+                  <span>3</span> Depois da conferência, faça o pagamento.
+                </li>
+              </ol>
+            </div>
+            <div className="rf-price-card">
+              <p className="rf-price-title">Mapa Visual do Técnico Refrigerista</p>
+              <p className="rf-price-total">R$ 19,90</p>
+              <p className="rf-pay-info">Pagamento único</p>
+              <ul>
+                <li>
+                  <Check /> 6 cadernos técnicos
+                </li>
+                <li>
+                  <Check /> 10 bônus em PDF
+                </li>
+                <li>
+                  <Check /> 350 páginas de conteúdo
+                </li>
+                <li>
+                  <Check /> Entrega por WhatsApp
+                </li>
+              </ul>
+              <Cta offer />
+              {!whatsapp && (
+                <p className="rf-contact-status">O canal de atendimento está em preparação.</p>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <section id="perguntas" className="rf-section rf-faq">
+          <div className="rf-wrap">
+            <div className="rf-section-head">
+              <h2>Dúvidas frequentes</h2>
+            </div>
+            <div className="rf-faq-list">
+              {faq.map(([question, answer]) => (
+                <details key={question}>
+                  <summary>
+                    {question}
+                    <ChevronDown size={20} aria-hidden="true" />
+                  </summary>
+                  <p>{answer}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer className="rf-footer">
+        <div className="rf-wrap">
+          <span>
+            <Snowflake size={20} aria-hidden="true" /> Mapa Visual do Técnico Refrigerista
+          </span>
+          <span>
+            <Download size={17} aria-hidden="true" /> Material digital em PDF
+          </span>
+        </div>
+      </footer>
+    </div>
+  );
 }

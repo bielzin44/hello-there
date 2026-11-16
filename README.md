@@ -1,24 +1,23 @@
-# Hello There
+# Mapa Visual do Técnico Refrigerista
 
-oi
+Landing page da coleção digital de refrigeração. O projeto usa React, TanStack Start e Vite, com a integração existente do Lovable.
 
-This project was built with [Lovable](https://lovable.dev).
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/8d24fff5-5df6-41fb-89bf-f07c29c7ce41).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+## Executar localmente
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+npm install
 npm run dev
+```
+
+## Atendimento pelo WhatsApp
+
+Configure a variável pública `VITE_WHATSAPP_NUMBER` com o número comercial em formato internacional. Para um número brasileiro, inclua `55`, DDD e número, apenas com dígitos. Configure essa variável no ambiente de build e gere uma nova versão após alterá-la.
+
+Quando a variável está disponível, os botões abrem o WhatsApp com a mensagem da oferta preenchida. Em ambiente sem o número, a página mostra os detalhes da oferta e o estado do canal.
+
+## Conferência
+
+```sh
+npm run test
+npm run build
 ```
