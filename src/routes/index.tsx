@@ -5,17 +5,14 @@ import {
   ArrowRight,
   Check,
   ChevronDown,
-  ClipboardList,
   Download,
   FileText,
   Menu,
   MessageCircle,
   Pause,
   Play,
-  Search,
   ShieldCheck,
   Snowflake,
-  Wrench,
   X,
 } from "lucide-react";
 
@@ -138,10 +135,6 @@ const bonuses = [
 
 const faq = [
   [
-    "O que muda entre os dois planos?",
-    "Os dois planos incluem os seis cadernos. O Completo também inclui os dez bônus. As contagens são de páginas de conteúdo, além das capas.",
-  ],
-  [
     "Como recebo e quando pago?",
     usesCakto
       ? "Escolha seu plano e siga as instruções no botão. No checkout da Cakto, o acesso digital é liberado após a confirmação do pagamento."
@@ -155,27 +148,37 @@ const faq = [
     "Serve para quem está começando?",
     "Sim. As fichas ajudam a organizar as primeiras verificações e os indícios. Em testes ou intervenções, siga a documentação e os procedimentos de segurança do equipamento.",
   ],
-  [
-    "Quais equipamentos aparecem no Mapa?",
-    "Geladeiras, freezers, splits, bebedouros, purificadores, câmaras frias, expositores e balcões refrigerados. Os cadernos incluem fichas dedicadas a diagnóstico elétrico e inverter.",
-  ],
 ];
 
-function PlanButton({ plan }: { plan: (typeof plans)[number] }) {
+function PlanButton({
+  plan,
+  compact = false,
+}: {
+  plan: (typeof plans)[number];
+  compact?: boolean;
+}) {
   const message = `Olá! Quero receber o Plano ${plan.name} do Mapa Visual do Técnico Refrigerista por ${plan.price}.`;
-  const label = `Comprar Plano ${plan.name}`;
+  const label = (
+    <>
+      Comprar {plan.name}
+      {compact && <strong>{plan.price}</strong>}
+    </>
+  );
+  const className = `rf-cta${compact ? " rf-cta-quick" : ""}${
+    compact && plan === basicPlan ? " rf-cta-secondary" : ""
+  }`;
 
   if (plan.checkout) {
     return (
-      <a className="rf-cta" href={plan.checkout}>
-        {label} <ArrowRight size={19} aria-hidden="true" />
+      <a className={className} href={plan.checkout}>
+        {label} {!compact && <ArrowRight size={19} aria-hidden="true" />}
       </a>
     );
   }
 
   if (!hasWhatsApp) {
     return (
-      <button type="button" className="rf-cta" disabled>
+      <button type="button" className={className} disabled>
         {label}
       </button>
     );
@@ -183,12 +186,12 @@ function PlanButton({ plan }: { plan: (typeof plans)[number] }) {
 
   return (
     <a
-      className="rf-cta"
+      className={className}
       href={`https://wa.me/${contact}?text=${encodeURIComponent(message)}`}
       target="_blank"
       rel="noopener noreferrer"
     >
-      <MessageCircle size={19} aria-hidden="true" /> {label}
+      {!compact && <MessageCircle size={19} aria-hidden="true" />} {label}
     </a>
   );
 }
@@ -267,7 +270,7 @@ function RefrigeristaLanding() {
       </a>
       <header className="rf-header">
         <div className="rf-topline">
-          <Snowflake size={14} aria-hidden="true" /> Material digital em PDF · Conexão Aluno
+          <span aria-hidden="true">⚡</span> OFERTA RELÂMPAGO
         </div>
         <div className="rf-wrap rf-head-inner">
           <a className="rf-brand" href="#topo">
@@ -302,7 +305,7 @@ function RefrigeristaLanding() {
               Dúvidas
             </a>
             <a className="rf-head-action" href="#oferta" onClick={() => setMenu(false)}>
-              Ver produtos e planos <ArrowRight size={15} aria-hidden="true" />
+              Comparar planos <ArrowRight size={15} aria-hidden="true" />
             </a>
           </nav>
         </div>
@@ -316,25 +319,24 @@ function RefrigeristaLanding() {
                 O equipamento liga, mas não gela? <em>Saiba por onde começar.</em>
               </h1>
               <p className="rf-hero-text">
-                Abra no celular a ficha do sintoma e veja onde inspecionar, o que conferir primeiro
-                e quais indícios orientam o próximo passo. São{" "}
-                <strong>6 cadernos técnicos em PDF</strong>, da geladeira ao split inverter e à
-                refrigeração comercial.
+                Consulte a ficha do sintoma no celular e saiba o que verificar primeiro. São{" "}
+                <strong>6 cadernos em PDF</strong>, da geladeira ao split inverter e à refrigeração
+                comercial.
               </p>
-              <div className="rf-hero-actions">
-                <a className="rf-cta" href="#oferta">
-                  Ver produtos e planos <ArrowRight size={18} aria-hidden="true" />
-                </a>
-                <a className="rf-cta rf-cta-secondary" href="#amostras">
-                  Veja como o produto funciona <ArrowDown size={17} aria-hidden="true" />
-                </a>
+              <div className="rf-hero-actions" aria-label="Compra rápida" role="group">
+                {plans.map((plan) => (
+                  <PlanButton key={plan.name} plan={plan} compact />
+                ))}
               </div>
               <p className="rf-hero-note">
                 <ShieldCheck size={16} aria-hidden="true" />{" "}
                 {usesCakto
-                  ? `A partir de ${basicPlan.price} · Pagamento único · Checkout pela Cakto`
+                  ? "Pagamento único · Acesso digital pela Cakto"
                   : "Receba os PDFs, confira e só depois pague."}
               </p>
+              <a className="rf-text-link rf-center-link" href="#amostras">
+                Ver as fichas por dentro <ArrowDown size={16} aria-hidden="true" />
+              </a>
             </div>
             <figure
               className="rf-product"
@@ -376,141 +378,10 @@ function RefrigeristaLanding() {
 
         <PageMarquee />
 
-        <section className="rf-section rf-workflow" aria-labelledby="consulta">
-          <div className="rf-wrap">
-            <div className="rf-section-head rf-center">
-              <h2 id="consulta">O cliente espera. O defeito ainda não está claro.</h2>
-              <p>Na visita, use a ficha do sintoma para organizar a primeira verificação.</p>
-            </div>
-            <ul className="rf-symptoms" aria-label="Exemplos de chamados">
-              <li>“A geladeira liga, mas não gela.”</li>
-              <li>“O split começou a pingar.”</li>
-              <li>“O expositor perde frio no horário de pico.”</li>
-            </ul>
-            <div className="rf-workflow-grid">
-              {[
-                [
-                  Search,
-                  "Escolha o equipamento",
-                  "Abra o índice e localize o sintoma mais próximo do que você está observando.",
-                ],
-                [
-                  Wrench,
-                  "Localize os pontos de inspeção",
-                  "Veja no desenho onde olhar e quais indícios ajudam a orientar o próximo passo.",
-                ],
-                [
-                  ClipboardList,
-                  "Registre o que encontrou",
-                  "Anote as observações e procure a ficha técnica seguinte quando precisar aprofundar.",
-                ],
-              ].map(([Icon, title, text]) => {
-                const StepIcon = Icon as typeof Search;
-                return (
-                  <article key={String(title)}>
-                    <span className="rf-step-icon">
-                      <StepIcon size={22} aria-hidden="true" />
-                    </span>
-                    <h3>{String(title)}</h3>
-                    <p>{String(text)}</p>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        <section id="cadernos" className="rf-section rf-cadernos" aria-labelledby="titulo-cadernos">
-          <div className="rf-wrap">
-            <div className="rf-section-head rf-center">
-              <h2 id="titulo-cadernos">O que você recebe nos dois planos</h2>
-              <p>
-                Seis cadernos em PDF, com fichas, diagramas e checklists para consultar em campo.
-              </p>
-            </div>
-            <div className="rf-volume-grid">
-              {cadernos.map((item, index) => (
-                <article key={item.title}>
-                  <img
-                    src={`${asset}/caderno-${index + 1}.webp`}
-                    alt=""
-                    width={420}
-                    height={594}
-                    loading="lazy"
-                  />
-                  <div>
-                    <h3>{item.title}</h3>
-                    <p>{item.description}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="rf-section rf-context" aria-labelledby="campo">
-          <div className="rf-wrap rf-context-grid">
-            <figure className="rf-tech-photo">
-              <img
-                src={`${asset}/tecnico.webp`}
-                alt="Imagem ilustrativa de um técnico segurando a capa do Mapa Visual em uma oficina de refrigeração"
-                width={1000}
-                height={667}
-                loading="lazy"
-              />
-              <figcaption>Imagem ilustrativa · material entregue em PDF</figcaption>
-            </figure>
-            <div>
-              <p className="rf-kicker">
-                <span /> CONSULTA EM CAMPO
-              </p>
-              <h2 id="campo">Antes de condenar uma peça, confira os indícios.</h2>
-              <p>
-                Use as fichas para localizar peças, comparar sinais parecidos e registrar o que foi
-                conferido. Códigos e valores específicos remetem ao manual do equipamento.
-              </p>
-              <a className="rf-text-link" href="#oferta">
-                Ver o que vem no kit <ArrowDown size={17} aria-hidden="true" />
-              </a>
-            </div>
-          </div>
-        </section>
-
-        <section id="bonus" className="rf-section rf-bonuses">
-          <div className="rf-wrap">
-            <div className="rf-section-head rf-center">
-              <p className="rf-kicker">
-                <span /> INCLUÍDOS NO PLANO COMPLETO
-              </p>
-              <h2>Do primeiro WhatsApp à entrega do serviço</h2>
-              <p>Receba 10 bônus com materiais que você pode usar no próximo chamado.</p>
-            </div>
-            <div className="rf-bonus-grid">
-              {bonuses.map(([title, description], index) => (
-                <article className="rf-bonus-card" key={title}>
-                  <div className="rf-bonus-art">
-                    <img
-                      src={`${asset}/bonus-${index + 1}.webp`}
-                      alt={`Capa de ${title}`}
-                      width={300}
-                      height={424}
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className="rf-bonus-text">
-                    <h3>{title}</h3>
-                    <p>{description}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
         <section id="oferta" className="rf-section rf-offer" aria-labelledby="titulo-oferta">
           <div className="rf-wrap">
             <div className="rf-section-head rf-offer-head">
-              <h2 id="titulo-oferta">Compare os planos e escolha seu material</h2>
+              <h2 id="titulo-oferta">Escolha seu plano</h2>
               <p>
                 {usesCakto
                   ? "Os dois incluem 6 cadernos. Por mais R$ 5,00, o Completo acrescenta 10 bônus de campo."
@@ -556,12 +427,55 @@ function RefrigeristaLanding() {
             )}
           </div>
         </section>
-        <section className="rf-section rf-close" aria-labelledby="titulo-fechamento">
-          <div className="rf-wrap rf-center">
-            <h2 id="titulo-fechamento">No próximo chamado, tenha a ficha certa à mão.</h2>
-            <a className="rf-cta" href="#oferta">
-              Escolher meu plano <ArrowRight size={18} aria-hidden="true" />
-            </a>
+
+        <section className="rf-section rf-details" aria-label="Conteúdo dos planos">
+          <div className="rf-wrap">
+            <details id="cadernos" className="rf-content-detail">
+              <summary>
+                Ver os 6 cadernos dos dois planos <ChevronDown size={20} aria-hidden="true" />
+              </summary>
+              <div className="rf-volume-grid">
+                {cadernos.map((item, index) => (
+                  <article key={item.title}>
+                    <img
+                      src={`${asset}/caderno-${index + 1}.webp`}
+                      alt=""
+                      width={420}
+                      height={594}
+                      loading="lazy"
+                    />
+                    <div>
+                      <h3>{item.title}</h3>
+                      <p>{item.description}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </details>
+            <details id="bonus" className="rf-content-detail">
+              <summary>
+                Ver os 10 bônus do Completo <ChevronDown size={20} aria-hidden="true" />
+              </summary>
+              <div className="rf-bonus-grid">
+                {bonuses.map(([title, description], index) => (
+                  <article className="rf-bonus-card" key={title}>
+                    <div className="rf-bonus-art">
+                      <img
+                        src={`${asset}/bonus-${index + 1}.webp`}
+                        alt={`Capa de ${title}`}
+                        width={300}
+                        height={424}
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="rf-bonus-text">
+                      <h3>{title}</h3>
+                      <p>{description}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </details>
           </div>
         </section>
 
