@@ -34,7 +34,7 @@ function caktoCheckout(value: string | undefined) {
 const plans = [
   {
     name: "Básico",
-    price: "R$ 19,90",
+    price: "R$ 14,99",
     checkout:
       caktoCheckout(import.meta.env["VITE_CAKTO_BASICO_URL"]) ??
       "https://pay.cakto.com.br/33qmvhu_1329845",
@@ -47,7 +47,7 @@ const plans = [
   },
   {
     name: "Completo",
-    price: "R$ 24,90",
+    price: "R$ 22,90",
     checkout:
       caktoCheckout(import.meta.env["VITE_CAKTO_COMPLETO_URL"]) ??
       "https://pay.cakto.com.br/8gwdoad_1329846",
@@ -402,7 +402,7 @@ function RefrigeristaLanding() {
             <div className="rf-section-head rf-center">
               <h2 id="titulo-oferta">Escolha seu plano</h2>
               <p>
-                Os dois planos incluem os 6 cadernos. Por mais R$ 5,00, você leva os 10 bônus do
+                Os dois planos incluem os 6 cadernos. Por mais R$ 7,91, você leva os 10 bônus do
                 Completo.
               </p>
             </div>
