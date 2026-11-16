@@ -439,13 +439,40 @@ function RefrigeristaLanding() {
                   <div className="rf-plan-checkout">
                     <PlanButton plan={plan} />
                     <p className="rf-plan-checkout-note">
-                      <ShieldCheck size={14} aria-hidden="true" /> Pagamento e acesso digital pela
-                      Cakto
+                      <ShieldCheck size={14} aria-hidden="true" />
+                      <a href="#reembolso">7 dias para pedir reembolso</a>
                     </p>
                   </div>
                 </article>
               ))}
             </div>
+            <section id="reembolso" className="rf-refund" aria-labelledby="titulo-reembolso">
+              <ShieldCheck size={24} aria-hidden="true" />
+              <div>
+                <h2 id="titulo-reembolso">Como funciona o reembolso</h2>
+                <p>
+                  Se você desistir da compra do Plano Básico ou Completo, pode solicitar a devolução
+                  integral do valor pago dentro do prazo de arrependimento de{" "}
+                  <strong>7 dias corridos</strong>, conforme o art. 49 do Código de Defesa do
+                  Consumidor.
+                </p>
+                <ol>
+                  <li>
+                    Abra o{" "}
+                    <a href="https://reembolso.cakto.com.br/">portal de reembolso da Cakto</a>.
+                  </li>
+                  <li>
+                    Informe o e-mail ou o telefone com DDD usado na compra e confirme o código.
+                  </li>
+                  <li>Encontre o pedido em Minhas compras e selecione Solicitar reembolso.</li>
+                </ol>
+                <p>
+                  O valor volta pelo mesmo meio de pagamento. Se o portal orientar você a falar com
+                  o vendedor, use o contato de suporte exibido na tela ou no e-mail de confirmação
+                  da compra.
+                </p>
+              </div>
+            </section>
           </div>
         </section>
 
@@ -484,6 +511,7 @@ function RefrigeristaLanding() {
           <span>
             <FileText size={17} aria-hidden="true" /> Material digital em PDF
           </span>
+          <a href="#reembolso">Como pedir reembolso</a>
         </div>
       </footer>
     </div>

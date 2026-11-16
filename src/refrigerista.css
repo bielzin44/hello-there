@@ -461,6 +461,44 @@
 .rf-plan-checkout-note svg {
   flex: none;
 }
+.rf-plan-checkout-note a,
+.rf-refund a,
+.rf-footer a {
+  color: var(--blue);
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+}
+.rf-refund {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  max-width: 900px;
+  margin: 28px auto 0;
+  padding: clamp(16px, 3vw, 28px);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: white;
+  font-size: 14px;
+}
+.rf-refund > svg {
+  color: var(--blue);
+}
+.rf-refund h2 {
+  font-size: clamp(1.3rem, 3vw, 1.65rem);
+}
+.rf-refund h2 + p {
+  margin-top: 9px;
+}
+.rf-refund ol {
+  margin: 10px 0;
+  padding-inline-start: 1.3em;
+  list-style: decimal;
+}
+.rf-refund li + li {
+  margin-top: 4px;
+}
 .rf-price-card-body h4 {
   display: flex;
   align-items: center;
@@ -601,6 +639,9 @@
 .rf-footer svg {
   flex: none;
   color: var(--blue);
+}
+.rf-footer a {
+  font-size: 12px;
 }
 
 @media (max-width: 920px) {
