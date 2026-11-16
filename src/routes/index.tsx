@@ -438,6 +438,9 @@ function RefrigeristaLanding() {
                   </div>
                   <div className="rf-plan-checkout">
                     <PlanButton plan={plan} />
+                    <a className="rf-refund-link" href="#reembolso">
+                      7 dias para pedir reembolso
+                    </a>
                     <p className="rf-plan-checkout-note">
                       <ShieldCheck size={14} aria-hidden="true" /> Pagamento e acesso digital pela
                       Cakto
@@ -445,6 +448,41 @@ function RefrigeristaLanding() {
                   </div>
                 </article>
               ))}
+            </div>
+            <div id="reembolso" className="rf-refund" aria-labelledby="titulo-reembolso">
+              <div className="rf-refund-head">
+                <ShieldCheck size={26} aria-hidden="true" />
+                <h3 id="titulo-reembolso">Como funciona o reembolso</h3>
+              </div>
+              <p>
+                Se você desistir da compra do Plano Básico ou Completo, pode solicitar a devolução
+                integral do valor pago dentro do prazo de arrependimento de 7 dias corridos,
+                conforme o art. 49 do Código de Defesa do Consumidor.
+              </p>
+              <ol className="rf-refund-steps">
+                <li>
+                  Abra o{" "}
+                  <a
+                    href="https://reembolso.cakto.com.br/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    portal de reembolso da Cakto
+                  </a>
+                  .
+                </li>
+                <li>
+                  Informe o e-mail ou o telefone com DDD usado na compra e confirme o código.
+                </li>
+                <li>
+                  Encontre o pedido em Minhas compras e selecione Solicitar reembolso.
+                </li>
+              </ol>
+              <p>
+                O valor volta pelo mesmo meio de pagamento. Se o portal orientar você a falar com o
+                vendedor, use o contato de suporte exibido na tela ou no e-mail de confirmação da
+                compra.
+              </p>
             </div>
           </div>
         </section>
@@ -484,6 +522,9 @@ function RefrigeristaLanding() {
           <span>
             <FileText size={17} aria-hidden="true" /> Material digital em PDF
           </span>
+          <a className="rf-footer-link" href="#reembolso">
+            <ShieldCheck size={17} aria-hidden="true" /> Como pedir reembolso
+          </a>
         </div>
       </footer>
     </div>
