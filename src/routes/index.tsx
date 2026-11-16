@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowDown,
   ArrowRight,
@@ -194,7 +194,17 @@ function PlanButton({ plan }: { plan: (typeof plans)[number] }) {
 }
 
 function PageMarquee() {
-  const [paused, setPaused] = useState(false);
+  const [motion, setMotion] = useState<"auto" | "playing" | "paused">("auto");
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const stopped = motion === "paused" || (motion === "auto" && reducedMotion);
+
+  useEffect(() => {
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(preference.matches);
+    update();
+    preference.addEventListener("change", update);
+    return () => preference.removeEventListener("change", update);
+  }, []);
 
   return (
     <section id="amostras" className="rf-section rf-samples" aria-labelledby="titulo-amostras">
@@ -202,9 +212,9 @@ function PageMarquee() {
         <div className="rf-section-head rf-center">
           <h2 id="titulo-amostras">Veja como o produto funciona</h2>
         </div>
-        <div className="rf-sample-frame">
+        <div className="rf-sample-frame" data-motion={motion}>
           <div className="rf-sample-window">
-            <div className="rf-sample-track" data-paused={paused}>
+            <div className="rf-sample-track">
               {[false, true].map((clone) => (
                 <div
                   className="rf-sample-strip"
@@ -218,7 +228,6 @@ function PageMarquee() {
                       src={`${asset}/ficha-${index + 1}.webp`}
                       width={650}
                       height={919}
-                      loading="lazy"
                       decoding="async"
                       alt={clone ? "" : sample}
                     />
@@ -230,10 +239,10 @@ function PageMarquee() {
           <button
             className="rf-sample-motion"
             type="button"
-            aria-label={paused ? "Retomar passagem das páginas" : "Pausar passagem das páginas"}
-            onClick={() => setPaused(!paused)}
+            aria-label={stopped ? "Reproduzir passagem das páginas" : "Pausar passagem das páginas"}
+            onClick={() => setMotion(stopped ? "playing" : "paused")}
           >
-            {paused ? (
+            {stopped ? (
               <Play size={16} aria-hidden="true" />
             ) : (
               <Pause size={16} aria-hidden="true" />

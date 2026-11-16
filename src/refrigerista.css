@@ -447,9 +447,9 @@
   --sample-gap: clamp(10px, 1.5vw, 18px);
   display: flex;
   width: max-content;
-  animation: rf-sample-flow 37s linear infinite;
+  animation: rf-sample-flow 26s linear infinite;
 }
-.rf-sample-track[data-paused="true"] {
+.rf-sample-frame[data-motion="paused"] .rf-sample-track {
   animation-play-state: paused;
 }
 @keyframes rf-sample-flow {
@@ -890,15 +890,14 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .rf-sample-window {
+  .rf-sample-frame[data-motion="auto"] .rf-sample-window {
     overflow-x: auto;
     padding-inline-start: 12px;
   }
-  .rf-sample-track {
+  .rf-sample-frame[data-motion="auto"] .rf-sample-track {
     animation: none;
   }
-  .rf-sample-strip[aria-hidden],
-  .rf-sample-motion {
+  .rf-sample-frame[data-motion="auto"] .rf-sample-strip[aria-hidden] {
     display: none;
   }
   .rf-cta {
