@@ -1,20 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowDown,
   ArrowLeft,
   ArrowRight,
-  BookOpen,
   Check,
   ChevronDown,
   ClipboardList,
   Download,
   Expand,
-  FileText,
   Menu,
   MessageCircle,
+  Pause,
+  Play,
   Search,
-  Smartphone,
   Snowflake,
   Wrench,
   X,
@@ -24,50 +23,68 @@ export const Route = createFileRoute("/")({ component: RefrigeristaLanding });
 
 const asset = "/images/refrigerista";
 const contact = import.meta.env["VITE_WHATSAPP_NUMBER"]?.trim().replace(/\D/g, "");
-const message = "Olá! Quero receber o Mapa Visual do Técnico Refrigerista por R$ 19,90.";
-const whatsapp = /^55\d{10,11}$/.test(contact ?? "")
-  ? `https://wa.me/${contact}?text=${encodeURIComponent(message)}`
-  : null;
+const hasWhatsApp = /^55\d{10,11}$/.test(contact ?? "");
+
+const plans = [
+  {
+    name: "Básico",
+    price: "R$ 14,90",
+    description: "Para começar pelos chamados mais comuns e pelos testes elétricos.",
+    features: [
+      "Mapa Visual Geral",
+      "Diagnóstico Split",
+      "Mapa Elétrico do Refrigerista",
+      "132 páginas de conteúdo em 3 PDFs",
+    ],
+  },
+  {
+    name: "Completo",
+    price: "R$ 19,90",
+    description: "Para consultar também circuito frigorífico, inverter e refrigeração comercial.",
+    features: [
+      "Os 3 cadernos do Básico",
+      "Vazamento, Vácuo e Carga",
+      "Diagnóstico Inverter na Prática",
+      "Refrigeração Comercial",
+      "Todos os 10 bônus",
+      "350 páginas de conteúdo em 16 PDFs",
+    ],
+  },
+];
 
 const cadernos = [
   {
     title: "Mapa Visual Geral",
-    pages: 56,
     description:
       "Encontre a ficha pelo sintoma em geladeiras, freezers, splits, bebedouros, purificadores e câmaras frias.",
     sample: "Geladeira não gela",
   },
   {
     title: "Diagnóstico Split",
-    pages: 41,
     description:
       "Organize as verificações quando o split gela pouco, pinga, forma gelo ou desliga sozinho.",
     sample: "Água na unidade interna",
   },
   {
     title: "Mapa Elétrico do Refrigerista",
-    pages: 35,
     description:
       "Consulte 30 fichas de medição e interpretação para componentes como capacitores, sensores, relés e compressores.",
     sample: "Capacitância do capacitor permanente",
   },
   {
     title: "Vazamento, Vácuo e Carga",
-    pages: 32,
     description:
       "Siga a investigação do primeiro indício de vazamento ao registro de estanqueidade, vácuo, carga por massa e conferência final.",
     sample: "Falta de fluido, restrição ou pouco ar?",
   },
   {
     title: "Diagnóstico Inverter na Prática",
-    pages: 36,
     description:
       "Relacione alimentação, comando, comunicação e compressor em geladeiras e splits inverter.",
     sample: "Placa, comunicação ou compressor?",
   },
   {
     title: "Refrigeração Comercial",
-    pages: 40,
     description:
       "Investigue perda de rendimento, gelo, drenagem e falhas de controle em câmaras frias, expositores e balcões refrigerados.",
     sample: "Expositor perde rendimento no pico",
@@ -98,12 +115,12 @@ const bonuses = [
 
 const faq = [
   [
-    "O que eu recebo?",
-    "São 6 cadernos técnicos e 10 bônus em PDF. O kit reúne 350 páginas de conteúdo, além das capas.",
+    "O que muda entre os dois planos?",
+    "O Básico inclui Mapa Visual Geral, Diagnóstico Split e Mapa Elétrico. O Completo reúne os seis cadernos e os dez bônus. As contagens acima são de páginas de conteúdo, além das capas.",
   ],
   [
     "Como recebo e quando pago?",
-    "Chame no WhatsApp. Você recebe os PDFs, abre e confere o material e só depois faz o pagamento único de R$ 19,90.",
+    "Escolha o plano e chame no WhatsApp. Você recebe os PDFs do plano escolhido, confere o material e faz o pagamento único conforme o valor do seu plano.",
   ],
   [
     "Preciso imprimir?",
@@ -119,40 +136,163 @@ const faq = [
   ],
 ];
 
-function Cta({
-  label = "Quero receber pelo WhatsApp",
-  offer = false,
-}: {
-  label?: string;
-  offer?: boolean;
-}) {
-  if (offer && !whatsapp) {
+function PlanButton({ plan }: { plan: (typeof plans)[number] }) {
+  const message = `Olá! Quero receber o Plano ${plan.name} do Mapa Visual do Técnico Refrigerista por ${plan.price}.`;
+  const label = `Quero o ${plan.name}`;
+
+  if (!hasWhatsApp) {
     return (
-      <span className="rf-cta unavailable" aria-disabled="true">
-        <MessageCircle size={20} /> WhatsApp em breve
-      </span>
+      <button type="button" className="rf-cta" disabled>
+        {label}
+      </button>
     );
   }
 
   return (
     <a
       className="rf-cta"
-      href={whatsapp ?? "#oferta"}
-      target={whatsapp ? "_blank" : undefined}
-      rel={whatsapp ? "noopener noreferrer" : undefined}
+      href={`https://wa.me/${contact}?text=${encodeURIComponent(message)}`}
+      target="_blank"
+      rel="noopener noreferrer"
     >
-      <MessageCircle size={20} aria-hidden="true" /> {whatsapp ? label : "Ver detalhes da oferta"}{" "}
-      <ArrowRight className="cta-arrow" size={19} aria-hidden="true" />
+      <MessageCircle size={19} aria-hidden="true" /> {label}
     </a>
   );
 }
 
+function PageCarousel() {
+  const rail = useRef<HTMLDivElement>(null);
+  const original = useRef<HTMLDivElement>(null);
+  const resumeAfter = useRef(0);
+  const [motion, setMotion] = useState(true);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    const viewport = rail.current;
+    const row = original.current;
+    if (!viewport || !row || !motion || reducedMotion) return;
+
+    let animation = 0;
+    let previousTime = 0;
+    let remainder = 0;
+    const scroll = (time: number) => {
+      if (
+        previousTime &&
+        time > resumeAfter.current &&
+        !viewport.matches(":hover, :focus-within")
+      ) {
+        remainder += Math.min(time - previousTime, 50) * 0.034;
+        const pixels = Math.floor(remainder);
+        const cycle = row.offsetWidth;
+        if (pixels && cycle) {
+          viewport.scrollLeft = (viewport.scrollLeft + pixels) % cycle;
+          remainder -= pixels;
+        }
+      }
+      previousTime = time;
+      animation = requestAnimationFrame(scroll);
+    };
+    animation = requestAnimationFrame(scroll);
+    return () => cancelAnimationFrame(animation);
+  }, [motion, reducedMotion]);
+
+  function move(direction: number) {
+    const viewport = rail.current;
+    const row = original.current;
+    const card = row?.firstElementChild;
+    if (!viewport || !row || !card) return;
+    resumeAfter.current = performance.now() + 5000;
+    const cycle = row.offsetWidth;
+    let start = viewport.scrollLeft % cycle;
+    const step = card.getBoundingClientRect().width + 16;
+    if (direction < 0 && start < step) start += cycle;
+    viewport.scrollLeft = start;
+    viewport.scrollBy({ left: direction * step, behavior: reducedMotion ? "instant" : "smooth" });
+  }
+
+  return (
+    <section id="amostras" className="rf-section rf-samples" aria-labelledby="titulo-amostras">
+      <div className="rf-wrap">
+        <div className="rf-section-head rf-samples-head">
+          <div>
+            <h2 id="titulo-amostras">Veja os mapas por dentro</h2>
+            <p>Toque numa ficha para ampliar e ver como o diagnóstico é organizado.</p>
+          </div>
+          <div className="rf-carousel-controls" aria-label="Controles das amostras">
+            <button type="button" onClick={() => move(-1)} aria-label="Ficha anterior">
+              <ArrowLeft size={20} />
+            </button>
+            <button type="button" onClick={() => move(1)} aria-label="Próxima ficha">
+              <ArrowRight size={20} />
+            </button>
+            {!reducedMotion && (
+              <button
+                type="button"
+                onClick={() => setMotion(!motion)}
+                aria-label={motion ? "Pausar amostras" : "Reproduzir amostras"}
+              >
+                {motion ? <Pause size={16} /> : <Play size={16} />}
+              </button>
+            )}
+          </div>
+        </div>
+        <div
+          className="rf-carousel"
+          ref={rail}
+          onPointerDown={() => {
+            resumeAfter.current = performance.now() + 5000;
+          }}
+        >
+          {[false, true].map((clone) => (
+            <div
+              className="rf-carousel-row"
+              key={String(clone)}
+              ref={clone ? undefined : original}
+              aria-hidden={clone || undefined}
+            >
+              {cadernos.map((item, index) => (
+                <a
+                  className="rf-slide"
+                  key={item.title}
+                  href={`${asset}/ficha-${index + 1}.webp`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  tabIndex={clone ? -1 : undefined}
+                >
+                  <img
+                    src={`${asset}/ficha-${index + 1}.webp`}
+                    width={650}
+                    height={919}
+                    loading={index < 3 ? "eager" : "lazy"}
+                    alt={clone ? "" : `Ficha: ${item.sample}`}
+                  />
+                  <span>
+                    {item.sample}
+                    <Expand size={15} aria-hidden="true" />
+                  </span>
+                </a>
+              ))}
+            </div>
+          ))}
+        </div>
+        <a className="rf-text-link" href="#oferta">
+          Comparar os planos <ArrowDown size={17} aria-hidden="true" />
+        </a>
+      </div>
+    </section>
+  );
+}
+
 function RefrigeristaLanding() {
-  const [book, setBook] = useState(0);
   const [menu, setMenu] = useState(false);
-  const current = cadernos[book] ?? cadernos[0]!;
-  const moveBook = (direction: number) =>
-    setBook((previous) => (previous + direction + cadernos.length) % cadernos.length);
 
   return (
     <div className="rf-site">
@@ -180,8 +320,8 @@ function RefrigeristaLanding() {
             {menu ? <X /> : <Menu />}
           </button>
           <nav id="navegacao" aria-label="Navegação principal" className={menu ? "is-open" : ""}>
-            <a href="#cadernos" onClick={() => setMenu(false)}>
-              Os cadernos
+            <a href="#amostras" onClick={() => setMenu(false)}>
+              Ver amostras
             </a>
             <a href="#bonus" onClick={() => setMenu(false)}>
               Bônus
@@ -190,7 +330,7 @@ function RefrigeristaLanding() {
               Dúvidas
             </a>
             <a className="rf-head-action" href="#oferta" onClick={() => setMenu(false)}>
-              Ver oferta <ArrowRight size={15} />
+              Ver planos <ArrowRight size={15} />
             </a>
           </nav>
         </div>
@@ -213,8 +353,12 @@ function RefrigeristaLanding() {
                 com os pontos de inspeção e os próximos passos.
               </p>
               <div className="rf-hero-actions">
-                <Cta />
-                <strong className="rf-hero-price">R$ 19,90</strong>
+                <a className="rf-cta" href="#oferta">
+                  Ver os planos <ArrowRight size={18} aria-hidden="true" />
+                </a>
+                <span className="rf-hero-price">
+                  A partir de <strong>R$ 14,90</strong>
+                </span>
               </div>
               <p className="rf-hero-note">
                 <Check size={16} aria-hidden="true" /> Receba os PDFs, confira e só depois pague.
@@ -225,9 +369,6 @@ function RefrigeristaLanding() {
               aria-label="Mockup dos cadernos e de uma ficha em um celular"
             >
               <div className="rf-product-grid" aria-hidden="true" />
-              <span className="rf-product-label">
-                <BookOpen size={14} /> COLEÇÃO DIGITAL
-              </span>
               <div className="rf-book-shadow rf-book-left">
                 <img src={`${asset}/caderno-2.webp`} alt="" width={420} height={594} />
               </div>
@@ -254,30 +395,9 @@ function RefrigeristaLanding() {
               <figcaption>Capas e ficha reais do material</figcaption>
             </figure>
           </div>
-          <div className="rf-wrap rf-stats" aria-label="Conteúdo da coleção">
-            <div>
-              <BookOpen />
-              <span>
-                <strong>6 cadernos técnicos</strong>
-                <small>Diagnóstico doméstico e comercial</small>
-              </span>
-            </div>
-            <div>
-              <ClipboardList />
-              <span>
-                <strong>10 bônus práticos</strong>
-                <small>Do orçamento à entrega técnica</small>
-              </span>
-            </div>
-            <div>
-              <Smartphone />
-              <span>
-                <strong>350 páginas de conteúdo</strong>
-                <small>PDFs para celular e impressão A4</small>
-              </span>
-            </div>
-          </div>
         </section>
+
+        <PageCarousel />
 
         <section className="rf-section rf-workflow" aria-labelledby="consulta">
           <div className="rf-wrap">
@@ -304,14 +424,13 @@ function RefrigeristaLanding() {
                   "Registre o que encontrou",
                   "Anote as observações e procure a ficha técnica seguinte quando precisar aprofundar.",
                 ],
-              ].map(([Icon, title, text], index) => {
+              ].map(([Icon, title, text]) => {
                 const StepIcon = Icon as typeof Search;
                 return (
                   <article key={String(title)}>
                     <span className="rf-step-icon">
                       <StepIcon size={22} aria-hidden="true" />
                     </span>
-                    <span className="rf-step-no">0{index + 1}</span>
                     <h3>{String(title)}</h3>
                     <p>{String(text)}</p>
                   </article>
@@ -321,67 +440,15 @@ function RefrigeristaLanding() {
           </div>
         </section>
 
-        <section id="cadernos" className="rf-section rf-cadernos">
+        <section id="cadernos" className="rf-section rf-cadernos" aria-labelledby="titulo-cadernos">
           <div className="rf-wrap">
             <div className="rf-section-head">
-              <p className="rf-kicker">
-                <span /> POR DENTRO DA COLEÇÃO
-              </p>
-              <h2>Explore os seis cadernos</h2>
-              <p>Selecione uma capa e veja uma ficha real de cada volume.</p>
+              <h2 id="titulo-cadernos">Seis cadernos para consultar em campo</h2>
+              <p>O Básico inclui os três primeiros. O Completo reúne todos os volumes.</p>
             </div>
-            <div className="rf-reader">
-              <div className="rf-reader-art">
-                <img
-                  className="rf-reader-cover"
-                  src={`${asset}/caderno-${book + 1}.webp`}
-                  alt={`Capa de ${current.title}`}
-                  width={420}
-                  height={594}
-                  loading="lazy"
-                />
-                <img
-                  className="rf-reader-sheet"
-                  src={`${asset}/ficha-${book + 1}.webp`}
-                  alt={`Exemplo de ficha: ${current.sample}`}
-                  width={650}
-                  height={919}
-                  loading="lazy"
-                />
-              </div>
-              <div className="rf-reader-copy" aria-live="polite">
-                <p className="rf-reader-label">CADERNO {String(book + 1).padStart(2, "0")} DE 06</p>
-                <h3>{current.title}</h3>
-                <p>{current.description}</p>
-                <span className="rf-reader-pages">
-                  <FileText size={16} aria-hidden="true" /> {current.pages} páginas de conteúdo
-                </span>
-                <a
-                  className="rf-sample-link"
-                  href={`${asset}/ficha-${book + 1}.webp`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Expand size={16} aria-hidden="true" /> Ampliar ficha de exemplo
-                </a>
-                <div className="rf-reader-nav">
-                  <button type="button" onClick={() => moveBook(-1)} aria-label="Caderno anterior">
-                    <ArrowLeft size={21} />
-                  </button>
-                  <button type="button" onClick={() => moveBook(1)} aria-label="Próximo caderno">
-                    <ArrowRight size={21} />
-                  </button>
-                </div>
-              </div>
-            </div>
-            <div className="rf-thumbs" aria-label="Selecionar caderno">
+            <div className="rf-volume-grid">
               {cadernos.map((item, index) => (
-                <button
-                  type="button"
-                  key={item.title}
-                  onClick={() => setBook(index)}
-                  aria-pressed={book === index}
-                >
+                <article key={item.title}>
                   <img
                     src={`${asset}/caderno-${index + 1}.webp`}
                     alt=""
@@ -389,8 +456,11 @@ function RefrigeristaLanding() {
                     height={594}
                     loading="lazy"
                   />
-                  <span>{item.title}</span>
-                </button>
+                  <div>
+                    <h3>{item.title}</h3>
+                    <p>{item.description}</p>
+                  </div>
+                </article>
               ))}
             </div>
           </div>
@@ -428,7 +498,7 @@ function RefrigeristaLanding() {
           <div className="rf-wrap">
             <div className="rf-section-head">
               <p className="rf-kicker">
-                <span /> INCLUÍDOS NO KIT
+                <span /> INCLUÍDOS NO PLANO COMPLETO
               </p>
               <h2>10 bônus para usar no próximo chamado</h2>
               <p>Modelos de atendimento, rotinas de campo e materiais para imprimir.</p>
@@ -455,48 +525,41 @@ function RefrigeristaLanding() {
           </div>
         </section>
 
-        <section id="oferta" className="rf-section rf-offer">
-          <div className="rf-wrap rf-offer-grid">
-            <div>
-              <p className="rf-kicker">
-                <span /> ENVIO PELO WHATSAPP
+        <section id="oferta" className="rf-section rf-offer" aria-labelledby="titulo-oferta">
+          <div className="rf-wrap">
+            <div className="rf-section-head rf-offer-head">
+              <h2 id="titulo-oferta">Escolha seu plano</h2>
+              <p>Receba os PDFs pelo WhatsApp, confira o material e só depois pague.</p>
+            </div>
+            <div className="rf-offer-grid">
+              {plans.map((plan, index) => (
+                <article
+                  className={`rf-price-card${index === 1 ? " rf-price-complete" : ""}`}
+                  key={plan.name}
+                >
+                  <div className="rf-price-heading">
+                    <h3>Plano {plan.name}</h3>
+                    {index === 1 && <span>6 cadernos + 10 bônus</span>}
+                  </div>
+                  <p className="rf-plan-description">{plan.description}</p>
+                  <p className="rf-price-total">{plan.price}</p>
+                  <p className="rf-pay-info">Pagamento único</p>
+                  <ul>
+                    {plan.features.map((feature) => (
+                      <li key={feature}>
+                        <Check size={17} aria-hidden="true" /> {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <PlanButton plan={plan} />
+                </article>
+              ))}
+            </div>
+            {!hasWhatsApp && (
+              <p className="rf-contact-status">
+                O atendimento pelo WhatsApp estará disponível em breve.
               </p>
-              <h2>Receba, confira e só depois pague.</h2>
-              <ol className="rf-order">
-                <li>
-                  <span>1</span> Chame no WhatsApp e peça o Mapa Visual.
-                </li>
-                <li>
-                  <span>2</span> Receba os PDFs e confira o conteúdo.
-                </li>
-                <li>
-                  <span>3</span> Depois da conferência, faça o pagamento.
-                </li>
-              </ol>
-            </div>
-            <div className="rf-price-card">
-              <p className="rf-price-title">Mapa Visual do Técnico Refrigerista</p>
-              <p className="rf-price-total">R$ 19,90</p>
-              <p className="rf-pay-info">Pagamento único</p>
-              <ul>
-                <li>
-                  <Check /> 6 cadernos técnicos
-                </li>
-                <li>
-                  <Check /> 10 bônus em PDF
-                </li>
-                <li>
-                  <Check /> 350 páginas de conteúdo
-                </li>
-                <li>
-                  <Check /> Entrega por WhatsApp
-                </li>
-              </ul>
-              <Cta offer />
-              {!whatsapp && (
-                <p className="rf-contact-status">O canal de atendimento está em preparação.</p>
-              )}
-            </div>
+            )}
           </div>
         </section>
 

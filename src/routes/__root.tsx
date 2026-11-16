@@ -83,7 +83,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         name: "description",
         content:
-          "Encontre o sintoma e saiba o que verificar primeiro. Receba 6 cadernos e 10 bônus em PDF pelo WhatsApp, confira e só depois pague R$ 19,90.",
+          "Encontre o sintoma e saiba o que verificar primeiro. Escolha o Básico com 3 cadernos ou o Completo com 6 cadernos e 10 bônus. Receba em PDF pelo WhatsApp.",
       },
       { property: "og:title", content: "Mapa Visual do Técnico Refrigerista" },
       {
