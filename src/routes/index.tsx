@@ -205,7 +205,7 @@ function ProductMockup() {
 function FieldExamples() {
   return (
     <div id="exemplos" className="rf-field-examples">
-      <div className="rf-section-head">
+      <div className="rf-section-head rf-center">
         <h3>Do relato do cliente à primeira verificação</h3>
       </div>
       <div className="rf-example-grid">
@@ -325,14 +325,14 @@ function RefrigeristaLanding() {
 
         <section id="cadernos" className="rf-section" aria-labelledby="titulo-cadernos">
           <div className="rf-wrap">
-            <div className="rf-section-head">
+            <div className="rf-section-head rf-center">
               <h2 id="titulo-cadernos">Os 6 cadernos dos dois planos</h2>
               <p>
                 Escolha o caderno pelo equipamento, pelo sintoma ou pelo componente que precisa
                 verificar.
               </p>
             </div>
-            <div className="rf-catalog">
+            <div className="rf-catalog rf-book-grid">
               {cadernos.map((item, index) => (
                 <article key={item.title}>
                   <img

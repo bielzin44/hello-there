@@ -283,26 +283,36 @@
 .rf-field-examples .rf-section-head h3 {
   font-size: clamp(1.65rem, 3vw, 2.25rem);
   letter-spacing: -0.025em;
+  text-wrap: balance;
 }
-.rf-example-grid,
+.rf-example-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 13px;
+}
 .rf-catalog {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 13px;
 }
 .rf-example {
-  display: grid;
-  grid-template-columns: minmax(82px, 32%) minmax(0, 1fr);
+  display: flex;
+  flex: 0 0 calc((100% - 26px) / 3);
+  flex-direction: column;
+  min-width: 0;
   gap: 12px;
-  padding: 13px;
+  padding: 16px;
   align-items: center;
   border: 1px solid var(--line);
   border-radius: 11px;
   background: white;
+  text-align: center;
 }
 .rf-example-art {
   position: relative;
   display: block;
+  width: min(100%, 105px);
   border: 1px solid var(--line);
   border-radius: 5px;
   overflow: hidden;
@@ -335,6 +345,10 @@
     Inter,
     sans-serif;
 }
+.rf-example-copy,
+.rf-book-grid article > div {
+  max-width: 34ch;
+}
 .rf-example h4 + p,
 .rf-catalog h3 + p {
   margin-top: 6px;
@@ -345,6 +359,7 @@
 .rf-steps {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 6px 20px;
   margin-top: 19px;
 }
@@ -355,6 +370,9 @@
   color: var(--blue);
   font-size: 13px;
   font-weight: 700;
+}
+.rf-steps svg {
+  flex: none;
 }
 
 .rf-offer {
@@ -537,6 +555,14 @@
   border: 1px solid var(--line);
   border-radius: 3px;
 }
+.rf-book-grid article {
+  flex-direction: column;
+  padding: 16px;
+  text-align: center;
+}
+.rf-book-grid article img {
+  width: 86px;
+}
 .rf-bonus {
   background: #f3f7fa;
   border-top: 1px solid var(--line);
@@ -615,9 +641,11 @@
   .rf-wrap {
     width: calc(100% - 42px);
   }
-  .rf-example-grid,
   .rf-catalog {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .rf-example {
+    flex-basis: calc((100% - 13px) / 2);
   }
   .rf-bonus-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -630,7 +658,6 @@
   .rf-wrap {
     width: calc(100% - 30px);
   }
-  .rf-example-grid,
   .rf-offer-grid,
   .rf-catalog {
     grid-template-columns: minmax(0, 1fr);
@@ -643,7 +670,7 @@
     font-size: 15px;
   }
   .rf-example {
-    grid-template-columns: minmax(77px, 24%) minmax(0, 1fr);
+    flex-basis: 100%;
   }
   .rf-section-head {
     margin-bottom: 18px;
