@@ -162,13 +162,8 @@ function PlanButton({
 }) {
   return (
     <a className={`rf-cta${plan.includesBonuses ? " rf-cta-full" : ""}`} href={plan.checkout}>
-      <span>
-        {compact ? `Quero o ${plan.name}` : `Comprar Plano ${plan.name}`}
-        {compact && <strong>{plan.price}</strong>}
-      </span>
-      <span className="rf-cta-arrow" aria-hidden="true">
-        <ArrowRight size={18} />
-      </span>
+      <span>{compact ? plan.name : `Comprar Plano ${plan.name}`}</span>
+      {compact ? <strong>{plan.price}</strong> : <ArrowRight size={14} aria-hidden="true" />}
     </a>
   );
 }

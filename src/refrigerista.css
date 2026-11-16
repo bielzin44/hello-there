@@ -126,59 +126,53 @@
   color: var(--navy);
 }
 .rf-hero-actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  max-width: 440px;
-  gap: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
   margin-top: 23px;
-  margin-inline: auto;
-}
-.rf-hero-actions .rf-cta {
-  min-height: 57px;
 }
 .rf-hero-actions strong {
-  display: block;
-  font-size: 12px;
-  margin-top: 3px;
+  color: inherit;
+  font-size: 11px;
+  white-space: nowrap;
 }
 .rf-cta {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  min-height: 55px;
+  display: inline-flex;
+  min-height: 44px;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 8px 10px 8px 15px;
-  border: 1px solid transparent;
-  border-radius: 14px;
-  background: var(--navy);
-  color: white;
-  text-align: left;
-  font-size: 14px;
-  font-weight: 800;
+  padding: 6px 12px;
+  border: 1px solid #b2c8da;
+  border-radius: 8px;
+  background: white;
+  color: var(--navy);
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
   line-height: 1.25;
-  box-shadow: 0 4px 0 #0a1e33;
 }
 .rf-cta:hover {
-  background: #203e60;
+  background: #eaf3fa;
 }
-.rf-cta-arrow {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #ffffff1f;
+.rf-cta svg {
+  flex: none;
 }
 .rf-cta-full {
-  background: #ffcc48;
-  color: #18273a;
-  box-shadow: 0 4px 0 #b78819;
+  border-color: transparent;
+  background: var(--blue);
+  color: white;
 }
 .rf-cta-full:hover {
-  background: #ffda73;
+  background: #05466f;
 }
-.rf-cta-full .rf-cta-arrow {
-  background: #18273a17;
+.rf-price-card-full .rf-cta-full {
+  background: #dceefb;
+  color: var(--navy);
+}
+.rf-price-card-full .rf-cta-full:hover {
+  background: white;
 }
 .rf-hero .rf-trust {
   display: flex;
