@@ -1,27 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import {
   ArrowDown,
   ArrowRight,
   Check,
   ChevronDown,
-  Download,
+  ClipboardList,
+  Expand,
   FileText,
-  Menu,
-  MessageCircle,
-  Pause,
-  Play,
+  Search,
   ShieldCheck,
   Snowflake,
-  X,
+  Wrench,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({ component: RefrigeristaLanding });
 
 const asset = "/images/refrigerista";
-const contact = import.meta.env["VITE_WHATSAPP_NUMBER"]?.trim().replace(/\D/g, "");
-const hasWhatsApp = /^55\d{10,11}$/.test(contact ?? "");
-
 function caktoCheckout(value: string | undefined) {
   if (!value) return null;
   try {
@@ -67,10 +61,6 @@ const plans = [
     ],
   },
 ] as const;
-
-const [basicPlan, completePlan] = plans;
-const usesCakto = Boolean(basicPlan?.checkout || completePlan?.checkout);
-const canBuyBothPlans = plans.every((plan) => plan.checkout || hasWhatsApp);
 
 const cadernos = [
   {
@@ -133,20 +123,39 @@ const bonuses = [
   ["Compatibilidade de Peças", "Confira modelo, códigos e revisão antes de cotar ou comprar."],
 ];
 
+const fieldExamples = [
+  {
+    index: 0,
+    symptom: "A geladeira liga e não gela",
+    description:
+      "Use a ficha para separar uma dificuldade de circulação de ar de outros sinais de perda de refrigeração.",
+  },
+  {
+    index: 1,
+    symptom: "O split está pingando por dentro",
+    description:
+      "Localize os pontos de inspeção do dreno, da bandeja e do isolamento antes de decidir o próximo passo.",
+  },
+  {
+    index: 5,
+    symptom: "O expositor perde frio no horário de pico",
+    description:
+      "Organize os indícios de ventilação, abertura de portas e carga de produtos que aparecem durante o atendimento.",
+  },
+];
+
 const faq = [
   [
-    "Como recebo e quando pago?",
-    usesCakto
-      ? "Escolha seu plano e siga as instruções no botão. No checkout da Cakto, o acesso digital é liberado após a confirmação do pagamento."
-      : "No atendimento por WhatsApp, você recebe os PDFs do plano escolhido, confere o material e faz o pagamento único.",
+    "Como recebo o material?",
+    "Depois da confirmação do pagamento na Cakto, você acessa os PDFs no Cakto Members.",
   ],
   [
-    "Preciso imprimir?",
-    "Você pode consultar os PDFs pelo celular ou imprimir as fichas que quiser em papel A4.",
+    "Preciso imprimir as fichas?",
+    "Você pode salvar os PDFs no celular e imprimir em A4 as páginas que quiser levar na maleta.",
   ],
   [
     "Serve para quem está começando?",
-    "Sim. As fichas ajudam a organizar as primeiras verificações e os indícios. Em testes ou intervenções, siga a documentação e os procedimentos de segurança do equipamento.",
+    "Sim. As fichas ajudam a organizar a observação e a consulta. Em testes e intervenções, siga a documentação do fabricante e os procedimentos de segurança.",
   ],
 ];
 
@@ -157,355 +166,309 @@ function PlanButton({
   plan: (typeof plans)[number];
   compact?: boolean;
 }) {
-  const message = `Olá! Quero receber o Plano ${plan.name} do Mapa Visual do Técnico Refrigerista por ${plan.price}.`;
-  const label = (
-    <>
-      Comprar {plan.name}
-      {compact && <strong>{plan.price}</strong>}
-    </>
-  );
-  const className = `rf-cta${compact ? " rf-cta-quick" : ""}${
-    compact && plan === basicPlan ? " rf-cta-secondary" : ""
-  }`;
-
-  if (plan.checkout) {
-    return (
-      <a className={className} href={plan.checkout}>
-        {label} {!compact && <ArrowRight size={19} aria-hidden="true" />}
-      </a>
-    );
-  }
-
-  if (!hasWhatsApp) {
-    return (
-      <button type="button" className={className} disabled>
-        {label}
-      </button>
-    );
-  }
-
   return (
-    <a
-      className={className}
-      href={`https://wa.me/${contact}?text=${encodeURIComponent(message)}`}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      {!compact && <MessageCircle size={19} aria-hidden="true" />} {label}
+    <a className={`rf-cta ${plan.name === "Básico" ? "rf-cta-outline" : ""}`} href={plan.checkout}>
+      {compact ? (
+        <span>
+          Plano {plan.name} <strong>{plan.price}</strong>
+        </span>
+      ) : (
+        <>Comprar Plano {plan.name}</>
+      )}
+      <ArrowRight size={18} aria-hidden="true" />
     </a>
   );
 }
 
+function ProductMockup() {
+  return (
+    <figure className="rf-product">
+      <img
+        className="rf-portrait"
+        src={`${asset}/tecnico.webp`}
+        alt="Técnico de refrigeração segurando a capa do Mapa Visual em uma oficina"
+        width={1000}
+        height={667}
+        fetchPriority="high"
+      />
+      <div className="rf-pack" aria-hidden="true">
+        {[2, 3, 1].map((index) => (
+          <img
+            className={`rf-pack-cover rf-pack-cover-${index}`}
+            key={index}
+            src={`${asset}/caderno-${index}.webp`}
+            width={420}
+            height={594}
+            alt=""
+          />
+        ))}
+      </div>
+      <figcaption>Material digital · 6 cadernos técnicos</figcaption>
+    </figure>
+  );
+}
+
 function PageMarquee() {
-  const [motion, setMotion] = useState<"auto" | "playing" | "paused">("auto");
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const stopped = motion === "paused" || (motion === "auto" && reducedMotion);
-
-  useEffect(() => {
-    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReducedMotion(preference.matches);
-    update();
-    preference.addEventListener("change", update);
-    return () => preference.removeEventListener("change", update);
-  }, []);
-
   return (
     <section id="amostras" className="rf-section rf-samples" aria-labelledby="titulo-amostras">
       <div className="rf-wrap">
-        <div className="rf-section-head rf-center">
+        <div className="rf-section-head">
+          <p className="rf-kicker">POR DENTRO DO MATERIAL</p>
           <h2 id="titulo-amostras">Veja como o produto funciona</h2>
+          <p>
+            Estas são páginas reais da coleção, com pontos de inspeção, fluxogramas e comparações.
+          </p>
         </div>
-        <div className="rf-sample-frame" data-motion={motion}>
-          <div className="rf-sample-window">
-            <div className="rf-sample-track">
-              {[false, true].map((clone) => (
-                <div
-                  className="rf-sample-strip"
-                  key={String(clone)}
-                  aria-hidden={clone || undefined}
-                >
-                  {cadernos.map(({ sample }, index) => (
-                    <img
-                      className="rf-sample-page"
-                      key={sample}
-                      src={`${asset}/ficha-${index + 1}.webp`}
-                      width={650}
-                      height={919}
-                      decoding="async"
-                      alt={clone ? "" : sample}
-                    />
-                  ))}
-                </div>
-              ))}
-            </div>
+        <div className="rf-sample-window">
+          <div className="rf-sample-track">
+            {[false, true].map((clone) => (
+              <div className="rf-sample-strip" key={String(clone)} aria-hidden={clone || undefined}>
+                {cadernos.map(({ sample }, index) => (
+                  <img
+                    className="rf-sample-page"
+                    key={sample}
+                    src={`${asset}/ficha-${index + 1}.webp`}
+                    width={650}
+                    height={919}
+                    decoding="async"
+                    alt={clone ? "" : sample}
+                  />
+                ))}
+              </div>
+            ))}
           </div>
-          <button
-            className="rf-sample-motion"
-            type="button"
-            aria-label={stopped ? "Reproduzir passagem das páginas" : "Pausar passagem das páginas"}
-            onClick={() => setMotion(stopped ? "playing" : "paused")}
-          >
-            {stopped ? (
-              <Play size={16} aria-hidden="true" />
-            ) : (
-              <Pause size={16} aria-hidden="true" />
-            )}
-          </button>
         </div>
-        <a className="rf-text-link rf-center-link" href="#oferta">
-          Ver o que vem em cada plano <ArrowDown size={17} aria-hidden="true" />
-        </a>
       </div>
     </section>
   );
 }
 
 function RefrigeristaLanding() {
-  const [menu, setMenu] = useState(false);
-
   return (
     <div className="rf-site">
-      <a href="#conteudo-principal" className="rf-skip">
+      <a className="rf-skip" href="#conteudo-principal">
         Pular para o conteúdo
       </a>
       <header className="rf-header">
         <div className="rf-topline">
           <span aria-hidden="true">⚡</span> OFERTA RELÂMPAGO
         </div>
-        <div className="rf-wrap rf-head-inner">
+        <div className="rf-wrap rf-header-inner">
           <a className="rf-brand" href="#topo">
             <span>
-              <Snowflake size={22} aria-hidden="true" />
-            </span>
-            <div>
-              Mapa Visual <small>DO TÉCNICO REFRIGERISTA</small>
-            </div>
+              <Snowflake size={21} aria-hidden="true" />
+            </span>{" "}
+            Conexão Aluno
           </a>
-          <button
-            className="rf-menu"
-            type="button"
-            onClick={() => setMenu(!menu)}
-            aria-expanded={menu}
-            aria-controls="navegacao"
-            aria-label={menu ? "Fechar menu" : "Abrir menu"}
-          >
-            {menu ? <X /> : <Menu />}
-          </button>
-          <nav id="navegacao" aria-label="Navegação principal" className={menu ? "is-open" : ""}>
-            <a href="#amostras" onClick={() => setMenu(false)}>
-              Como funciona
+          <nav aria-label="Navegação principal">
+            <a className="rf-nav-examples" href="#amostras">
+              Ver exemplos
             </a>
-            <a href="#cadernos" onClick={() => setMenu(false)}>
-              O que você recebe
-            </a>
-            <a href="#bonus" onClick={() => setMenu(false)}>
-              Bônus
-            </a>
-            <a href="#perguntas" onClick={() => setMenu(false)}>
-              Dúvidas
-            </a>
-            <a className="rf-head-action" href="#oferta" onClick={() => setMenu(false)}>
-              Comparar planos <ArrowRight size={15} aria-hidden="true" />
+            <a className="rf-header-cta" href="#oferta">
+              Ver os planos <ArrowDown size={16} aria-hidden="true" />
             </a>
           </nav>
         </div>
       </header>
+
       <main id="conteudo-principal">
-        <section id="topo" className="rf-hero">
+        <section id="topo" className="rf-hero" aria-labelledby="titulo-principal">
           <div className="rf-wrap rf-hero-grid">
             <div className="rf-hero-copy">
               <p className="rf-kicker">MAPA VISUAL DO TÉCNICO REFRIGERISTA</p>
-              <h1>
-                O equipamento liga, mas não gela? <em>Saiba por onde começar.</em>
+              <h1 id="titulo-principal">
+                O cliente disse: <em>“Liga, mas não gela”.</em> O que você verifica primeiro?
               </h1>
-              <p className="rf-hero-text">
-                Consulte a ficha do sintoma no celular e saiba o que verificar primeiro. São{" "}
-                <strong>6 cadernos em PDF</strong>, da geladeira ao split inverter e à refrigeração
+              <p className="rf-hero-deck">
+                Abra a ficha do sintoma no celular e veja onde olhar e quais sinais ajudam a decidir
+                o próximo passo. São <strong>6 cadernos em PDF</strong>, da geladeira à refrigeração
                 comercial.
               </p>
-              <div className="rf-hero-actions" aria-label="Compra rápida" role="group">
+              <div className="rf-hero-actions" role="group" aria-label="Compra rápida">
                 {plans.map((plan) => (
                   <PlanButton key={plan.name} plan={plan} compact />
                 ))}
               </div>
-              <p className="rf-hero-note">
-                <ShieldCheck size={16} aria-hidden="true" />{" "}
-                {usesCakto
-                  ? "Pagamento único · Acesso digital pela Cakto"
-                  : "Receba os PDFs, confira e só depois pague."}
+              <p className="rf-trust">
+                <ShieldCheck size={17} aria-hidden="true" /> Pagamento único · Acesso digital pela
+                Cakto
               </p>
-              <a className="rf-text-link rf-center-link" href="#amostras">
-                Ver as fichas por dentro <ArrowDown size={16} aria-hidden="true" />
-              </a>
             </div>
-            <figure
-              className="rf-product"
-              aria-label="Mockup dos cadernos e de uma ficha em um celular"
-            >
-              <div className="rf-product-grid" aria-hidden="true" />
-              <div className="rf-book-shadow rf-book-left">
-                <img src={`${asset}/caderno-2.webp`} alt="" width={420} height={594} />
-              </div>
-              <div className="rf-book-shadow rf-book-right">
-                <img src={`${asset}/caderno-5.webp`} alt="" width={420} height={594} />
-              </div>
-              <div className="rf-book-shadow rf-book-far-left" aria-hidden="true">
-                <img src={`${asset}/caderno-3.webp`} alt="" width={420} height={594} />
-              </div>
-              <div className="rf-book-shadow rf-book-far-right" aria-hidden="true">
-                <img src={`${asset}/caderno-6.webp`} alt="" width={420} height={594} />
-              </div>
-              <div className="rf-book-shadow rf-book-main">
-                <img
-                  src={`${asset}/caderno-1.webp`}
-                  alt="Capa do Mapa Visual do Técnico Refrigerista"
-                  width={420}
-                  height={594}
-                  fetchPriority="high"
-                />
-              </div>
-              <div className="rf-phone">
-                <img
-                  src={`${asset}/ficha-1.webp`}
-                  alt="Ficha Geladeira não gela exibida em um celular"
-                  width={650}
-                  height={919}
-                />
-              </div>
-            </figure>
+            <ProductMockup />
           </div>
         </section>
 
         <PageMarquee />
 
+        <section id="exemplos" className="rf-section rf-examples" aria-labelledby="titulo-exemplos">
+          <div className="rf-wrap">
+            <div className="rf-section-head">
+              <h2 id="titulo-exemplos">O defeito começa com uma frase do cliente</h2>
+              <p>Veja como cada relato leva a uma ficha diferente.</p>
+            </div>
+            <div className="rf-example-grid">
+              {fieldExamples.map(({ index, symptom, description }) => (
+                <article className="rf-example" key={symptom}>
+                  <a
+                    className="rf-example-art"
+                    href={`${asset}/ficha-${index + 1}.webp`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Ampliar a ficha ${cadernos[index]?.sample} (nova aba)`}
+                  >
+                    <img
+                      src={`${asset}/ficha-${index + 1}.webp`}
+                      alt=""
+                      width={650}
+                      height={919}
+                      loading="lazy"
+                    />
+                    <span>
+                      <Expand size={17} aria-hidden="true" />
+                    </span>
+                  </a>
+                  <div className="rf-example-copy">
+                    <h3>{symptom}</h3>
+                    <p>{description}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <div className="rf-steps" aria-label="Como consultar">
+              <p>
+                <Search size={18} aria-hidden="true" /> Encontre o sintoma
+              </p>
+              <p>
+                <Wrench size={18} aria-hidden="true" /> Localize onde inspecionar
+              </p>
+              <p>
+                <ClipboardList size={18} aria-hidden="true" /> Registre o que observou
+              </p>
+            </div>
+          </div>
+        </section>
+
         <section id="oferta" className="rf-section rf-offer" aria-labelledby="titulo-oferta">
           <div className="rf-wrap">
-            <div className="rf-section-head rf-offer-head">
-              <h2 id="titulo-oferta">Escolha seu plano</h2>
+            <div className="rf-section-head rf-center">
+              <h2 id="titulo-oferta">Escolha o que levar para o próximo chamado</h2>
               <p>
-                {usesCakto
-                  ? "Os dois incluem 6 cadernos. Por mais R$ 5,00, o Completo acrescenta 10 bônus de campo."
-                  : "Receba os PDFs pelo WhatsApp, confira o material e só depois pague."}
+                Os dois planos incluem os 6 cadernos. Por mais R$ 5,00, o Completo acrescenta 10
+                bônus de campo.
               </p>
             </div>
             <div className="rf-offer-grid">
-              {plans.map((plan, index) => (
+              {plans.map((plan) => (
                 <article
-                  className={`rf-price-card${index === 1 ? " rf-price-complete" : ""}`}
+                  className={`rf-price-card ${plan.name === "Completo" ? "rf-price-card-full" : ""}`}
                   key={plan.name}
                 >
-                  <div className="rf-price-heading">
-                    <h3>Plano {plan.name}</h3>
-                    <span>{index === 1 ? "6 cadernos + 10 bônus" : "6 cadernos em PDF"}</span>
-                  </div>
+                  <p className="rf-plan-includes">
+                    {plan.name === "Completo" ? "6 CADERNOS + 10 BÔNUS" : "6 CADERNOS EM PDF"}
+                  </p>
+                  <h3>Plano {plan.name}</h3>
                   <p className="rf-plan-description">{plan.description}</p>
-                  <p className="rf-price-total">{plan.price}</p>
+                  <p className="rf-plan-price">{plan.price}</p>
                   <p className="rf-pay-info">Pagamento único</p>
                   <ul>
                     {plan.features.map((feature) => (
                       <li key={feature}>
-                        <Check size={17} aria-hidden="true" /> {feature}
+                        <Check size={17} aria-hidden="true" />
+                        {feature}
                       </li>
                     ))}
                   </ul>
                   <PlanButton plan={plan} />
-                  {plan.checkout && (
-                    <p className="rf-plan-delivery">
-                      <FileText size={15} aria-hidden="true" /> PDFs no Cakto Members após a
-                      confirmação
-                    </p>
-                  )}
                 </article>
               ))}
             </div>
-            {!canBuyBothPlans && (
-              <p className="rf-contact-status">
-                {usesCakto
-                  ? "Alguns planos ainda estão sendo configurados."
-                  : "As vendas serão disponibilizadas em breve."}
-              </p>
-            )}
           </div>
         </section>
 
-        <section className="rf-section rf-details" aria-label="Conteúdo dos planos">
-          <div className="rf-wrap">
-            <details id="cadernos" className="rf-content-detail">
-              <summary>
-                Ver os 6 cadernos dos dois planos <ChevronDown size={20} aria-hidden="true" />
-              </summary>
-              <div className="rf-volume-grid">
-                {cadernos.map((item, index) => (
-                  <article key={item.title}>
-                    <img
-                      src={`${asset}/caderno-${index + 1}.webp`}
-                      alt=""
-                      width={420}
-                      height={594}
-                      loading="lazy"
-                    />
-                    <div>
-                      <h3>{item.title}</h3>
-                      <p>{item.description}</p>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </details>
-            <details id="bonus" className="rf-content-detail">
-              <summary>
-                Ver os 10 bônus do Completo <ChevronDown size={20} aria-hidden="true" />
-              </summary>
-              <div className="rf-bonus-grid">
-                {bonuses.map(([title, description], index) => (
-                  <article className="rf-bonus-card" key={title}>
-                    <div className="rf-bonus-art">
-                      <img
-                        src={`${asset}/bonus-${index + 1}.webp`}
-                        alt={`Capa de ${title}`}
-                        width={300}
-                        height={424}
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="rf-bonus-text">
-                      <h3>{title}</h3>
-                      <p>{description}</p>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </details>
-          </div>
-        </section>
-
-        <section id="perguntas" className="rf-section rf-faq">
+        <section id="cadernos" className="rf-section" aria-labelledby="titulo-cadernos">
           <div className="rf-wrap">
             <div className="rf-section-head">
-              <h2>Dúvidas frequentes</h2>
+              <h2 id="titulo-cadernos">Os 6 cadernos dos dois planos</h2>
+              <p>
+                Escolha o caderno pelo equipamento, pelo sintoma ou pelo componente que precisa
+                verificar.
+              </p>
             </div>
-            <div className="rf-faq-list">
-              {faq.map(([question, answer]) => (
-                <details key={question}>
-                  <summary>
-                    {question}
-                    <ChevronDown size={20} aria-hidden="true" />
-                  </summary>
-                  <p>{answer}</p>
-                </details>
+            <div className="rf-catalog">
+              {cadernos.map((item, index) => (
+                <article key={item.title}>
+                  <img
+                    src={`${asset}/caderno-${index + 1}.webp`}
+                    width={420}
+                    height={594}
+                    alt=""
+                    loading="lazy"
+                  />
+                  <div>
+                    <h3>{item.title}</h3>
+                    <p>{item.description}</p>
+                  </div>
+                </article>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section id="bonus" className="rf-section rf-bonus" aria-labelledby="titulo-bonus">
+          <div className="rf-wrap">
+            <div className="rf-section-head">
+              <p className="rf-kicker">INCLUÍDOS NO PLANO COMPLETO</p>
+              <h2 id="titulo-bonus">Mais 10 PDFs, do orçamento ao pós-serviço</h2>
+              <p>Modelos de atendimento e materiais de campo para usar nos próximos chamados.</p>
+            </div>
+            <div className="rf-catalog rf-bonus-grid">
+              {bonuses.map(([title, description], index) => (
+                <article key={title}>
+                  <img
+                    src={`${asset}/bonus-${index + 1}.webp`}
+                    width={300}
+                    height={424}
+                    alt=""
+                    loading="lazy"
+                  />
+                  <div>
+                    <h3>{title}</h3>
+                    <p>{description}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="rf-section rf-faq" aria-labelledby="titulo-duvidas">
+          <div className="rf-wrap">
+            <div className="rf-section-head">
+              <h2 id="titulo-duvidas">Dúvidas frequentes</h2>
+            </div>
+            {faq.map(([question, answer]) => (
+              <details key={question}>
+                <summary>
+                  {question}
+                  <ChevronDown size={20} aria-hidden="true" />
+                </summary>
+                <p>{answer}</p>
+              </details>
+            ))}
+            <a className="rf-cta rf-faq-cta" href="#oferta">
+              Escolher meu plano <ArrowRight size={18} aria-hidden="true" />
+            </a>
           </div>
         </section>
       </main>
       <footer className="rf-footer">
         <div className="rf-wrap">
           <span>
-            <Snowflake size={20} aria-hidden="true" /> Conexão Aluno · Mapa Visual do Técnico
+            <Snowflake size={18} aria-hidden="true" /> Conexão Aluno · Mapa Visual do Técnico
             Refrigerista
           </span>
           <span>
-            <Download size={17} aria-hidden="true" /> Material digital em PDF
+            <FileText size={17} aria-hidden="true" /> Material digital em PDF
           </span>
         </div>
       </footer>
