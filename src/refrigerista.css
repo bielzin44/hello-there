@@ -214,6 +214,7 @@
 }
 .rf-section-head {
   margin-bottom: 25px;
+  text-align: center;
 }
 .rf-section-head h2 {
   font-size: clamp(2rem, 4.1vw, 3.42rem);
@@ -225,16 +226,13 @@
 }
 .rf-section-head h2 + p {
   margin-top: 9px;
+  margin-inline: auto;
+  max-width: 68ch;
   color: var(--muted);
-}
-.rf-center {
-  text-align: center;
+  text-wrap: pretty;
 }
 .rf-samples {
   border-bottom: 1px solid var(--line);
-}
-.rf-samples > .rf-wrap > .rf-section-head {
-  text-align: center;
 }
 .rf-sample-window {
   overflow: hidden;
@@ -346,7 +344,7 @@
     sans-serif;
 }
 .rf-example-copy,
-.rf-book-grid article > div {
+.rf-catalog article > div {
   max-width: 34ch;
 }
 .rf-example h4 + p,
@@ -390,6 +388,7 @@
 }
 .rf-price-card {
   position: relative;
+  text-align: center;
   border: 1px solid #d3deea;
   border-radius: 20px;
   background: white;
@@ -426,7 +425,6 @@
 }
 .rf-price-card-head {
   padding-block: 30px 20px;
-  text-align: center;
 }
 .rf-price-card h3 {
   font-size: clamp(1.5rem, 3vw, 1.85rem);
@@ -458,7 +456,6 @@
 }
 .rf-plan-checkout {
   padding-block: 22px 13px;
-  text-align: center;
 }
 .rf-plan-checkout .rf-cta {
   width: min(100%, 280px);
@@ -490,6 +487,7 @@
 .rf-price-card-body h4 {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   margin: 0;
   font-weight: 800;
@@ -500,7 +498,7 @@
   color: var(--blue);
 }
 .rf-price-card .rf-plan-pages {
-  margin: 5px 0 0 26px;
+  margin-top: 5px;
   color: var(--muted);
   font-size: 13px;
 }
@@ -514,6 +512,7 @@
 .rf-plan-list li {
   display: flex;
   align-items: start;
+  justify-content: center;
   gap: 8px;
   font-size: 14px;
 }
@@ -540,12 +539,14 @@
 }
 .rf-catalog article {
   display: flex;
+  flex-direction: column;
   gap: 11px;
   align-items: center;
   padding: 13px;
   border: 1px solid var(--line);
   border-radius: 10px;
   background: white;
+  text-align: center;
 }
 .rf-catalog article img {
   display: block;
@@ -556,9 +557,7 @@
   border-radius: 3px;
 }
 .rf-book-grid article {
-  flex-direction: column;
   padding: 16px;
-  text-align: center;
 }
 .rf-book-grid article img {
   width: 86px;
@@ -568,13 +567,16 @@
   border-top: 1px solid var(--line);
 }
 .rf-bonus-grid {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 .rf-bonus-grid article {
-  align-items: flex-start;
+  flex: 0 0 calc((100% - 52px) / 5);
+  min-width: 0;
 }
 .rf-bonus-grid article img {
-  width: 43px;
+  width: 65px;
 }
 .rf-bonus-grid h3 {
   font-size: 18px;
@@ -585,17 +587,16 @@
 
 .rf-faq > .rf-wrap {
   max-width: 820px;
+  text-align: center;
 }
 .rf-faq details {
   padding: 10px 0;
   border-bottom: 1px solid var(--line);
 }
 .rf-faq summary {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  padding: 5px 0;
+  position: relative;
+  display: block;
+  padding: 5px 26px;
   font-weight: 740;
   list-style: none;
   cursor: pointer;
@@ -604,7 +605,10 @@
   display: none;
 }
 .rf-faq summary svg {
-  flex: none;
+  position: absolute;
+  inset-inline-end: 0;
+  top: 50%;
+  translate: 0 -50%;
   color: var(--blue);
 }
 .rf-faq details[open] svg {
@@ -612,7 +616,9 @@
 }
 .rf-faq details p {
   color: var(--muted);
-  padding: 4px 25px 6px 0;
+  max-width: 64ch;
+  margin-inline: auto;
+  padding: 4px 12px 6px;
 }
 .rf-footer {
   background: var(--ice);
@@ -621,13 +627,15 @@
 }
 .rf-footer .rf-wrap {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   flex-wrap: wrap;
-  gap: 9px;
+  gap: 9px 20px;
+  text-align: center;
 }
 .rf-footer span {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
   color: var(--muted);
   font-size: 12px;
@@ -647,8 +655,8 @@
   .rf-example {
     flex-basis: calc((100% - 13px) / 2);
   }
-  .rf-bonus-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .rf-bonus-grid article {
+    flex-basis: calc((100% - 26px) / 3);
   }
   .rf-hero h1 {
     font-size: clamp(2.55rem, 6.15vw, 4.25rem);
@@ -672,19 +680,16 @@
   .rf-example {
     flex-basis: 100%;
   }
+  .rf-bonus-grid article {
+    flex-basis: 100%;
+  }
   .rf-section-head {
     margin-bottom: 18px;
   }
 }
 @media (min-width: 370px) and (max-width: 660px) {
-  .rf-bonus-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
   .rf-bonus-grid article {
-    display: block;
+    flex-basis: calc((100% - 13px) / 2);
     padding: 10px;
-  }
-  .rf-bonus-grid article img {
-    margin-bottom: 8px;
   }
 }
