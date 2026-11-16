@@ -442,18 +442,14 @@ function RefrigeristaLanding() {
                     <PlanButton plan={plan} />
                     <p className="rf-plan-badges">
                       <span>
-                        <Lock size={13} aria-hidden="true" /> Compra Segura
+                        <Lock size={11} aria-hidden="true" /> Compra Segura
                       </span>
                       <span>
-                        <ShieldCheck size={13} aria-hidden="true" /> Garantia 7 dias
+                        <ShieldCheck size={11} aria-hidden="true" /> Garantia 7 dias
                       </span>
                       <span>
-                        <Zap size={13} aria-hidden="true" /> Acesso Imediato
+                        <Zap size={11} aria-hidden="true" /> Acesso Imediato
                       </span>
-                    </p>
-                    <p className="rf-plan-checkout-note">
-                      <ShieldCheck size={14} aria-hidden="true" /> Pagamento e acesso digital pela
-                      Cakto
                     </p>
                   </div>
                 </article>
