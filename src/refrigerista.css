@@ -434,147 +434,63 @@
 }
 .rf-sample-frame {
   position: relative;
-  padding: 17px 0 13px;
   overflow: hidden;
   border: 1px solid #d5e6f0;
   border-radius: 19px;
   background: radial-gradient(ellipse at top, #e2eff8, #f4f9fc);
 }
-.rf-carousel-row {
-  margin-left: 0;
-  touch-action: pan-y pinch-zoom;
+.rf-sample-window {
+  overflow: hidden;
+  padding-block: 16px;
 }
-.rf-carousel-item {
-  flex: 0 0 29%;
-  padding: 6px 9px 12px;
-}
-.rf-slide {
+.rf-sample-track {
+  --sample-gap: clamp(10px, 1.5vw, 18px);
   display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
+  width: max-content;
+  animation: rf-sample-flow 37s linear infinite;
+}
+.rf-sample-track[data-paused="true"] {
+  animation-play-state: paused;
+}
+@keyframes rf-sample-flow {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.rf-sample-strip {
+  display: flex;
+  flex: none;
+  gap: var(--sample-gap);
+  padding-inline-end: var(--sample-gap);
+}
+.rf-sample-page {
+  display: block;
+  width: clamp(168px, 23vw, 238px);
+  height: auto;
+  aspect-ratio: 650 / 919;
   border: 1px solid #cddfe9;
   border-radius: 9px;
   background: #fff;
-  overflow: hidden;
   box-shadow: 0 5px 12px #133b4c15;
 }
-.rf-slide:focus-visible {
-  outline-offset: -3px !important;
-}
-.rf-slide img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 650 / 919;
-}
-.rf-slide span {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  flex: 1;
-  min-height: 46px;
-  border-top: 1px solid #dcecef;
-  padding: 7px 11px;
-  font-size: 12px;
-  line-height: 1.25;
-  font-weight: 720;
-  color: #254955;
-  text-align: left;
-}
-.rf-slide svg {
-  flex: none;
-}
-.rf-slide:hover span {
-  background: #e7f4fc;
-}
-.rf-sample-nav {
+.rf-sample-motion {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
   display: grid;
-  justify-items: center;
-  gap: 2px;
-  padding: 1px 12px 0;
-}
-.rf-carousel-controls,
-.rf-sample-dots {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-}
-.rf-carousel-controls button,
-.rf-dialog-heading button {
-  display: grid;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   place-items: center;
   border: 1px solid #bdd4e5;
   border-radius: 9px;
   color: #094f83;
   background: #fff;
 }
-.rf-carousel-controls button:hover,
-.rf-dialog-heading button:hover {
+.rf-sample-motion:hover {
   background: #e4f2fb;
-}
-.rf-sample-dots button {
-  display: grid;
-  width: 30px;
-  height: 32px;
-  place-items: center;
-  border-radius: 6px;
-}
-.rf-sample-dots button::after {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 10px;
-  background: #7a9eb6;
-}
-.rf-sample-dots button[aria-current]::after {
-  width: 19px;
-  background: #125c92;
-}
-.rf-sample-overlay {
-  position: fixed;
-  z-index: 20;
-  inset: 0;
-  background: #0b2139bd;
-}
-.rf-sample-dialog {
-  position: fixed;
-  z-index: 21;
-  inset: 50% auto auto 50%;
-  transform: translate(-50%, -50%);
-  width: min(calc(100% - 24px), 660px);
-  max-height: 91dvh;
-  overflow: auto;
-  overscroll-behavior: contain;
-  padding: 12px;
-  border-radius: 14px;
-  background: #f5faff;
-  color: #102847;
-  box-shadow: 0 15px 50px #071b3a5c;
-}
-.rf-dialog-heading {
-  position: sticky;
-  z-index: 1;
-  top: -12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 6px 2px;
-  margin: -3px 0 9px;
-  background: #f5faff;
-  font-weight: 750;
-}
-.rf-dialog-heading button {
-  flex: none;
-  cursor: pointer;
-}
-.rf-sample-dialog img {
-  width: 100%;
-  height: auto;
 }
 .rf-text-link {
   color: var(--cyan-dark);
@@ -912,10 +828,6 @@
   .rf-price-card .rf-plan-description {
     min-height: 0;
   }
-  .rf-carousel-item {
-    flex-basis: 68%;
-    padding-inline: 6px;
-  }
   .rf-samples {
     padding-top: 31px;
   }
@@ -978,6 +890,17 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .rf-sample-window {
+    overflow-x: auto;
+    padding-inline-start: 12px;
+  }
+  .rf-sample-track {
+    animation: none;
+  }
+  .rf-sample-strip[aria-hidden],
+  .rf-sample-motion {
+    display: none;
+  }
   .rf-cta {
     transition: none;
   }

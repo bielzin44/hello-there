@@ -1,21 +1,12 @@
-import * as Dialog from "@radix-ui/react-dialog";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  type CarouselApi,
-} from "@/components/ui/carousel";
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {
   ArrowDown,
-  ArrowLeft,
   ArrowRight,
   Check,
   ChevronDown,
   ClipboardList,
   Download,
-  Expand,
   FileText,
   Menu,
   MessageCircle,
@@ -202,184 +193,53 @@ function PlanButton({ plan }: { plan: (typeof plans)[number] }) {
   );
 }
 
-function PageCarousel() {
-  const section = useRef<HTMLElement>(null);
-  const sampleTrigger = useRef<HTMLButtonElement>(null);
-  const [carousel, setCarousel] = useState<CarouselApi>();
-  const [current, setCurrent] = useState(0);
-  const [opened, setOpened] = useState<number | null>(null);
-  const [visible, setVisible] = useState(false);
-  const [playing, setPlaying] = useState(true);
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const [hovered, setHovered] = useState(false);
-  const [focused, setFocused] = useState(false);
-
-  useEffect(() => {
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setReducedMotion(media.matches);
-    update();
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
-
-  useEffect(() => {
-    if (!section.current) return;
-    if (!("IntersectionObserver" in window)) {
-      setVisible(true);
-      return;
-    }
-    const observer = new IntersectionObserver(
-      ([entry]) => setVisible(Boolean(entry?.isIntersecting)),
-      {
-        threshold: 0.2,
-      },
-    );
-    observer.observe(section.current);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!carousel) return;
-    const update = () => setCurrent(carousel.selectedScrollSnap());
-    update();
-    carousel.on("select", update).on("reInit", update);
-    return () => {
-      carousel.off("select", update).off("reInit", update);
-    };
-  }, [carousel]);
-
-  useEffect(() => {
-    if (!carousel || !playing || !visible || reducedMotion || hovered || focused || opened !== null)
-      return;
-
-    const timer = window.setInterval(() => {
-      if (!document.hidden) carousel.scrollPrev();
-    }, 3700);
-
-    return () => window.clearInterval(timer);
-  }, [carousel, playing, visible, reducedMotion, hovered, focused, opened]);
-
-  const sample = opened === null ? null : cadernos[opened];
+function PageMarquee() {
+  const [paused, setPaused] = useState(false);
 
   return (
-    <section
-      ref={section}
-      id="amostras"
-      className="rf-section rf-samples"
-      aria-labelledby="titulo-amostras"
-    >
+    <section id="amostras" className="rf-section rf-samples" aria-labelledby="titulo-amostras">
       <div className="rf-wrap">
         <div className="rf-section-head rf-center">
-          <p className="rf-kicker">FICHAS REAIS DO MATERIAL</p>
           <h2 id="titulo-amostras">Veja como o produto funciona</h2>
-          <p>Deslize pelas fichas e toque em uma página para ler os detalhes.</p>
         </div>
-        <Dialog.Root open={sample !== null} onOpenChange={(open) => !open && setOpened(null)}>
-          <Carousel
-            opts={{ align: "center", loop: true, duration: reducedMotion ? 0 : 28 }}
-            setApi={setCarousel}
-            className="rf-sample-frame"
-            aria-label="Páginas de exemplo"
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-            onFocus={() => setFocused(true)}
-            onBlur={(event) => {
-              if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false);
-            }}
-          >
-            <CarouselContent className="rf-carousel-row">
-              {cadernos.map((item, index) => (
-                <CarouselItem className="rf-carousel-item" key={item.title}>
-                  <button
-                    type="button"
-                    className="rf-slide"
-                    onClick={(event) => {
-                      sampleTrigger.current = event.currentTarget;
-                      setOpened(index);
-                    }}
-                    aria-label={`Ampliar ficha: ${item.sample}`}
-                  >
+        <div className="rf-sample-frame">
+          <div className="rf-sample-window">
+            <div className="rf-sample-track" data-paused={paused}>
+              {[false, true].map((clone) => (
+                <div
+                  className="rf-sample-strip"
+                  key={String(clone)}
+                  aria-hidden={clone || undefined}
+                >
+                  {cadernos.map(({ sample }, index) => (
                     <img
+                      className="rf-sample-page"
+                      key={sample}
                       src={`${asset}/ficha-${index + 1}.webp`}
                       width={650}
                       height={919}
                       loading="lazy"
-                      alt=""
+                      decoding="async"
+                      alt={clone ? "" : sample}
                     />
-                    <span>
-                      {item.sample}
-                      <Expand size={15} aria-hidden="true" />
-                    </span>
-                  </button>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <div className="rf-sample-nav">
-              <div className="rf-carousel-controls">
-                <button
-                  type="button"
-                  onClick={() => carousel?.scrollPrev(reducedMotion)}
-                  aria-label="Ficha anterior"
-                >
-                  <ArrowLeft size={20} />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => carousel?.scrollNext(reducedMotion)}
-                  aria-label="Próxima ficha"
-                >
-                  <ArrowRight size={20} />
-                </button>
-                {!reducedMotion && (
-                  <button
-                    type="button"
-                    onClick={() => setPlaying(!playing)}
-                    aria-label={playing ? "Pausar amostras" : "Reproduzir amostras"}
-                  >
-                    {playing ? <Pause size={16} /> : <Play size={16} />}
-                  </button>
-                )}
-              </div>
-              <div className="rf-sample-dots" role="group" aria-label="Escolher ficha">
-                {cadernos.map((item, index) => (
-                  <button
-                    type="button"
-                    key={item.title}
-                    aria-label={item.sample}
-                    aria-current={current === index ? "true" : undefined}
-                    onClick={() => carousel?.scrollTo(index, reducedMotion)}
-                  />
-                ))}
-              </div>
-            </div>
-          </Carousel>
-          {sample && (
-            <Dialog.Portal>
-              <Dialog.Overlay className="rf-sample-overlay" />
-              <Dialog.Content
-                className="rf-sample-dialog"
-                onCloseAutoFocus={(event) => {
-                  event.preventDefault();
-                  sampleTrigger.current?.focus({ preventScroll: true });
-                }}
-                aria-describedby={undefined}
-              >
-                <div className="rf-dialog-heading">
-                  <Dialog.Title>{sample.sample}</Dialog.Title>
-                  <Dialog.Close aria-label="Fechar ficha">
-                    <X size={22} />
-                  </Dialog.Close>
+                  ))}
                 </div>
-                <img
-                  src={`${asset}/ficha-${(opened ?? 0) + 1}.webp`}
-                  width={650}
-                  height={919}
-                  alt={`Página de exemplo do caderno ${sample.title}`}
-                />
-              </Dialog.Content>
-            </Dialog.Portal>
-          )}
-        </Dialog.Root>
+              ))}
+            </div>
+          </div>
+          <button
+            className="rf-sample-motion"
+            type="button"
+            aria-label={paused ? "Retomar passagem das páginas" : "Pausar passagem das páginas"}
+            onClick={() => setPaused(!paused)}
+          >
+            {paused ? (
+              <Play size={16} aria-hidden="true" />
+            ) : (
+              <Pause size={16} aria-hidden="true" />
+            )}
+          </button>
+        </div>
         <a className="rf-text-link rf-center-link" href="#oferta">
           Ver o que vem em cada plano <ArrowDown size={17} aria-hidden="true" />
         </a>
@@ -505,7 +365,7 @@ function RefrigeristaLanding() {
           </div>
         </section>
 
-        <PageCarousel />
+        <PageMarquee />
 
         <section className="rf-section rf-workflow" aria-labelledby="consulta">
           <div className="rf-wrap">
