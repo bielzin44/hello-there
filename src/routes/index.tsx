@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
-  ArrowDown,
   ArrowRight,
   Check,
   ChevronDown,
@@ -201,16 +200,8 @@ function OfferMarquee() {
 
 function ProductMockup() {
   return (
-    <figure className="rf-product">
-      <img
-        className="rf-portrait"
-        src={`${asset}/tecnico.webp`}
-        alt="Técnico de refrigeração segurando a capa do Mapa Visual em uma oficina"
-        width={1000}
-        height={667}
-        fetchPriority="high"
-      />
-      <div className="rf-pack" aria-hidden="true">
+    <figure className="rf-product" aria-label="Capas dos cadernos do Mapa Visual">
+      <div className="rf-pack">
         {[2, 3, 1].map((index) => (
           <img
             className={`rf-pack-cover rf-pack-cover-${index}`}
@@ -218,11 +209,11 @@ function ProductMockup() {
             src={`${asset}/caderno-${index}.webp`}
             width={420}
             height={594}
-            alt=""
+            alt={index === 1 ? "Capa do Mapa Visual do Técnico Refrigerista" : ""}
+            fetchPriority={index === 1 ? "high" : undefined}
           />
         ))}
       </div>
-      <figcaption>Material digital · 6 cadernos técnicos</figcaption>
     </figure>
   );
 }
@@ -317,25 +308,6 @@ function RefrigeristaLanding() {
       </a>
       <header className="rf-header">
         <OfferMarquee />
-        <div className="rf-wrap rf-header-inner">
-          <a className="rf-brand" href="#topo">
-            <span>
-              <Snowflake size={21} aria-hidden="true" />
-            </span>{" "}
-            Conexão Aluno
-          </a>
-          <nav aria-label="Navegação principal">
-            <a className="rf-nav-examples" href="#amostras">
-              Ver exemplos
-            </a>
-            <a className="rf-nav-examples" href="#cadernos">
-              O que vem no kit
-            </a>
-            <a className="rf-header-cta" href="#oferta">
-              Ver os planos <ArrowDown size={16} aria-hidden="true" />
-            </a>
-          </nav>
-        </div>
       </header>
 
       <main id="conteudo-principal">
@@ -462,6 +434,16 @@ function RefrigeristaLanding() {
           </div>
         </section>
 
+        <div className="rf-wrap rf-technician">
+          <img
+            src={`${asset}/tecnico.webp`}
+            alt="Técnico de refrigeração segurando a capa do Mapa Visual em uma oficina"
+            width={1000}
+            height={667}
+            loading="lazy"
+          />
+        </div>
+
         <section className="rf-section rf-faq" aria-labelledby="titulo-duvidas">
           <div className="rf-wrap">
             <div className="rf-section-head">
@@ -476,17 +458,13 @@ function RefrigeristaLanding() {
                 <p>{answer}</p>
               </details>
             ))}
-            <a className="rf-cta rf-faq-cta" href="#oferta">
-              Escolher meu plano <ArrowRight size={18} aria-hidden="true" />
-            </a>
           </div>
         </section>
       </main>
       <footer className="rf-footer">
         <div className="rf-wrap">
           <span>
-            <Snowflake size={18} aria-hidden="true" /> Conexão Aluno · Mapa Visual do Técnico
-            Refrigerista
+            <Snowflake size={18} aria-hidden="true" /> Mapa Visual do Técnico Refrigerista
           </span>
           <span>
             <FileText size={17} aria-hidden="true" /> Material digital em PDF
