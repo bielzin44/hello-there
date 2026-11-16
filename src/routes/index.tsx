@@ -200,20 +200,14 @@ function OfferMarquee() {
 
 function ProductMockup() {
   return (
-    <figure className="rf-product" aria-label="Capas dos cadernos do Mapa Visual">
-      <div className="rf-pack">
-        {[2, 3, 1].map((index) => (
-          <img
-            className={`rf-pack-cover rf-pack-cover-${index}`}
-            key={index}
-            src={`${asset}/caderno-${index}.webp`}
-            width={420}
-            height={594}
-            alt={index === 1 ? "Capa do Mapa Visual do Técnico Refrigerista" : ""}
-            fetchPriority={index === 1 ? "high" : undefined}
-          />
-        ))}
-      </div>
+    <figure className="rf-product">
+      <img
+        src={`${asset}/mockup-cadernos.webp`}
+        width={960}
+        height={1200}
+        alt="Cadernos do Mapa Visual do Técnico Refrigerista apresentados como livros sobre uma bancada de refrigeração"
+        fetchPriority="high"
+      />
     </figure>
   );
 }
