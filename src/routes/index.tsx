@@ -1,11 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
   ArrowRight,
+  BookOpen,
   Check,
   ChevronDown,
   ClipboardList,
   Expand,
   FileText,
+  Gift,
   Search,
   ShieldCheck,
   Snowflake,
@@ -39,11 +41,7 @@ const plans = [
       caktoCheckout(import.meta.env["VITE_CAKTO_BASICO_URL"]) ??
       "https://pay.cakto.com.br/33qmvhu_1329845",
     description: "Para ter os mapas de diagnóstico sempre à mão durante a visita.",
-    features: [
-      "6 cadernos em PDF · 240 páginas de conteúdo",
-      "Geladeiras, split, inverter e refrigeração comercial",
-      "Testes elétricos, vazamento, vácuo e carga",
-    ],
+    includesBonuses: false,
   },
   {
     name: "Completo",
@@ -52,11 +50,7 @@ const plans = [
       caktoCheckout(import.meta.env["VITE_CAKTO_COMPLETO_URL"]) ??
       "https://pay.cakto.com.br/8gwdoad_1329846",
     description: "Para organizar o atendimento inteiro, da primeira mensagem à entrega.",
-    features: [
-      "Os 6 cadernos do Básico + 10 bônus em PDF",
-      "Modelos de orçamento, ordem de serviço e WhatsApp",
-      "Checklists, guias de campo e chamados simulados",
-    ],
+    includesBonuses: true,
   },
 ] as const;
 
@@ -167,15 +161,14 @@ function PlanButton({
   compact?: boolean;
 }) {
   return (
-    <a className={`rf-cta ${plan.name === "Básico" ? "rf-cta-outline" : ""}`} href={plan.checkout}>
-      {compact ? (
-        <span>
-          Quero o {plan.name} <strong>{plan.price}</strong>
-        </span>
-      ) : (
-        <>Comprar Plano {plan.name}</>
-      )}
-      <ArrowRight size={18} aria-hidden="true" />
+    <a className={`rf-cta${plan.includesBonuses ? " rf-cta-full" : ""}`} href={plan.checkout}>
+      <span>
+        {compact ? `Quero o ${plan.name}` : `Comprar Plano ${plan.name}`}
+        {compact && <strong>{plan.price}</strong>}
+      </span>
+      <span className="rf-cta-arrow" aria-hidden="true">
+        <ArrowRight size={18} />
+      </span>
     </a>
   );
 }
@@ -403,25 +396,47 @@ function RefrigeristaLanding() {
             <div className="rf-offer-grid">
               {plans.map((plan) => (
                 <article
-                  className={`rf-price-card ${plan.name === "Completo" ? "rf-price-card-full" : ""}`}
+                  className={`rf-price-card${plan.includesBonuses ? " rf-price-card-full" : ""}`}
                   key={plan.name}
                 >
-                  <p className="rf-plan-includes">
-                    {plan.name === "Completo" ? "6 CADERNOS + 10 BÔNUS" : "6 CADERNOS EM PDF"}
-                  </p>
-                  <h3>Plano {plan.name}</h3>
-                  <p className="rf-plan-description">{plan.description}</p>
-                  <p className="rf-plan-price">{plan.price}</p>
-                  <p className="rf-pay-info">Pagamento único</p>
-                  <ul>
-                    {plan.features.map((feature) => (
-                      <li key={feature}>
-                        <Check size={17} aria-hidden="true" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <PlanButton plan={plan} />
+                  <div className="rf-price-card-head">
+                    <h3>Plano {plan.name}</h3>
+                    <p className="rf-plan-description">{plan.description}</p>
+                    <div className="rf-plan-payment">
+                      <p className="rf-plan-price">{plan.price}</p>
+                      <p className="rf-pay-info">Pagamento único</p>
+                    </div>
+                    <PlanButton plan={plan} />
+                  </div>
+                  <div className="rf-price-card-body">
+                    <h4>
+                      <BookOpen size={18} aria-hidden="true" /> 6 cadernos em PDF
+                    </h4>
+                    <p className="rf-plan-pages">240 páginas de conteúdo</p>
+                    <ul className="rf-plan-list" aria-label="Cadernos incluídos">
+                      {cadernos.map(({ title }) => (
+                        <li key={title}>
+                          <Check size={16} aria-hidden="true" />
+                          {title}
+                        </li>
+                      ))}
+                    </ul>
+                    {plan.includesBonuses && (
+                      <div className="rf-plan-bonuses">
+                        <h4>
+                          <Gift size={18} aria-hidden="true" /> 10 bônus exclusivos em PDF
+                        </h4>
+                        <ul className="rf-plan-list" aria-label="Bônus incluídos">
+                          {bonuses.map(([title]) => (
+                            <li key={title}>
+                              <Check size={16} aria-hidden="true" />
+                              {title}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 </article>
               ))}
             </div>

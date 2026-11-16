@@ -15,7 +15,6 @@
   --navy: #142c47;
   --muted: #485e72;
   --blue: #075686;
-  --blue-hover: #05466f;
   --line: #d6e3ec;
   --ice: #eff6fa;
   color: var(--navy);
@@ -143,34 +142,43 @@
   margin-top: 3px;
 }
 .rf-cta {
-  display: inline-flex;
-  min-height: 49px;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: 55px;
   align-items: center;
-  gap: 9px;
-  padding: 8px 13px;
+  gap: 8px;
+  padding: 8px 10px 8px 15px;
   border: 1px solid transparent;
-  border-radius: 8px;
-  background: var(--blue);
+  border-radius: 14px;
+  background: var(--navy);
   color: white;
-  text-align: center;
+  text-align: left;
   font-size: 14px;
   font-weight: 800;
   line-height: 1.25;
+  box-shadow: 0 4px 0 #0a1e33;
 }
 .rf-cta:hover {
-  background: var(--blue-hover);
+  background: #203e60;
 }
-.rf-cta svg {
-  flex: none;
+.rf-cta-arrow {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ffffff1f;
 }
-.rf-cta-outline {
-  background: white;
-  color: var(--blue);
-  border-color: #b9d0e2;
+.rf-cta-full {
+  background: #ffcc48;
+  color: #18273a;
+  box-shadow: 0 4px 0 #b78819;
 }
-.rf-cta-outline:hover {
-  background: #e5f2fa;
+.rf-cta-full:hover {
+  background: #ffda73;
+}
+.rf-cta-full .rf-cta-arrow {
+  background: #18273a17;
 }
 .rf-hero .rf-trust {
   display: flex;
@@ -363,30 +371,37 @@
 .rf-offer-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  max-width: 842px;
-  gap: 14px;
+  align-items: start;
+  max-width: 900px;
+  gap: 18px;
   margin-inline: auto;
 }
 .rf-price-card {
-  display: flex;
-  flex-direction: column;
-  padding: clamp(18px, 3vw, 29px);
+  overflow: hidden;
   border: 1px solid #bdd4e5;
-  border-radius: 12px;
+  border-radius: 18px;
   background: white;
 }
 .rf-price-card-full {
-  border: 2px solid #20689a;
-  box-shadow: 0 10px 26px #1738521c;
+  border-color: #20689a;
+  box-shadow: 0 10px 26px #17385222;
 }
-.rf-price-card .rf-plan-includes {
-  color: var(--blue);
-  font-size: 11px;
-  letter-spacing: 0.09em;
-  font-weight: 800;
+.rf-price-card-head,
+.rf-price-card-body {
+  padding: clamp(18px, 3vw, 28px);
+}
+.rf-price-card-head {
+  background: #f7fafc;
+  border-bottom: 1px solid var(--line);
+}
+.rf-price-card-full .rf-price-card-head {
+  background: var(--navy);
+  color: white;
+}
+.rf-price-card-full .rf-price-card-head p {
+  color: #dce9f2;
 }
 .rf-price-card h3 {
-  margin-top: 5px;
   font-size: 29px;
 }
 .rf-price-card .rf-plan-description {
@@ -394,8 +409,15 @@
   font-size: 14px;
   color: var(--muted);
 }
+.rf-plan-payment {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 5px 12px;
+  margin-top: 15px;
+}
 .rf-price-card .rf-plan-price {
-  margin-top: 14px;
+  color: inherit;
   font:
     700 clamp(2.65rem, 5vw, 3.5rem)/1 Barlow,
     Inter,
@@ -406,29 +428,54 @@
   font-size: 12px;
   color: var(--muted);
 }
-.rf-price-card ul {
-  flex: 1;
-  display: grid;
-  align-content: start;
-  gap: 7px;
-  list-style: none;
-  padding: 13px 0;
-  margin: 12px 0 5px;
-  border-top: 1px solid var(--line);
+.rf-price-card .rf-cta {
+  margin-top: 16px;
 }
-.rf-price-card li {
+.rf-price-card-body h4 {
   display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  font-size: 13px;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-weight: 800;
+  line-height: 1.3;
 }
-.rf-price-card li svg {
+.rf-price-card-body h4 svg,
+.rf-plan-list svg {
   flex: none;
   color: var(--blue);
-  margin-top: 2px;
 }
-.rf-price-card .rf-cta {
-  width: 100%;
+.rf-price-card .rf-plan-pages {
+  margin: 5px 0 0 26px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.rf-plan-list {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin: 13px 0 0;
+}
+.rf-plan-list li {
+  display: flex;
+  align-items: start;
+  gap: 8px;
+  font-size: 14px;
+}
+.rf-plan-list svg {
+  margin-top: 3px;
+}
+.rf-plan-bonuses {
+  margin-top: 20px;
+  padding: 15px 13px;
+  border: 1px solid #d9e8f2;
+  border-radius: 12px;
+  background: #eff6fa;
+}
+@media (min-width: 661px) {
+  .rf-price-card .rf-plan-description {
+    min-height: 2lh;
+  }
 }
 .rf-catalog article {
   display: flex;
