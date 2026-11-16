@@ -16,6 +16,7 @@ import {
 export const Route = createFileRoute("/")({ component: RefrigeristaLanding });
 
 const asset = "/images/refrigerista";
+
 function caktoCheckout(value: string | undefined) {
   if (!value) return null;
   try {
@@ -38,12 +39,11 @@ const plans = [
     checkout:
       caktoCheckout(import.meta.env["VITE_CAKTO_BASICO_URL"]) ??
       "https://pay.cakto.com.br/33qmvhu_1329845",
-    description: "Para consultar sintomas e organizar as primeiras verificações no atendimento.",
+    description: "Para ter os mapas de diagnóstico sempre à mão durante a visita.",
     features: [
-      "6 cadernos técnicos em PDF",
-      "Diagnóstico por sintoma, testes elétricos e inverter",
-      "Vazamento, vácuo, carga e refrigeração comercial",
-      "240 páginas para consultar no celular ou imprimir",
+      "6 cadernos em PDF · 240 páginas de conteúdo",
+      "Geladeiras, split, inverter e refrigeração comercial",
+      "Testes elétricos, vazamento, vácuo e carga",
     ],
   },
   {
@@ -52,12 +52,11 @@ const plans = [
     checkout:
       caktoCheckout(import.meta.env["VITE_CAKTO_COMPLETO_URL"]) ??
       "https://pay.cakto.com.br/8gwdoad_1329846",
-    description: "Para consultar, orçar e registrar o serviço com os modelos já prontos.",
+    description: "Para organizar o atendimento inteiro, da primeira mensagem à entrega.",
     features: [
-      "Todos os 6 cadernos do Básico",
-      "Orçamentos, ordens de serviço e mensagens de WhatsApp",
+      "Os 6 cadernos do Básico + 10 bônus em PDF",
+      "Modelos de orçamento, ordem de serviço e WhatsApp",
       "Checklists, guias de campo e chamados simulados",
-      "350 páginas de conteúdo em 16 PDFs",
     ],
   },
 ] as const;
@@ -100,6 +99,8 @@ const cadernos = [
     sample: "Expositor perde rendimento no pico",
   },
 ];
+
+const offerRepeats = [0, 1, 2, 3];
 
 const bonuses = [
   ["Quanto cobrar?", "Calcule visita, deslocamento e hora técnica. Inclui modelos de orçamento."],
@@ -170,13 +171,31 @@ function PlanButton({
     <a className={`rf-cta ${plan.name === "Básico" ? "rf-cta-outline" : ""}`} href={plan.checkout}>
       {compact ? (
         <span>
-          Plano {plan.name} <strong>{plan.price}</strong>
+          Quero o {plan.name} <strong>{plan.price}</strong>
         </span>
       ) : (
         <>Comprar Plano {plan.name}</>
       )}
       <ArrowRight size={18} aria-hidden="true" />
     </a>
+  );
+}
+
+function OfferMarquee() {
+  return (
+    <div className="rf-topline" role="region" aria-label="Oferta relâmpago">
+      <div className="rf-offer-track" aria-hidden="true">
+        {[0, 1].map((copy) => (
+          <div className="rf-offer-strip" key={copy}>
+            {offerRepeats.map((repeat) => (
+              <span className="rf-offer-message" key={repeat}>
+                ⚡ OFERTA RELÂMPAGO
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -208,16 +227,62 @@ function ProductMockup() {
   );
 }
 
-function PageMarquee() {
+function FieldExamples() {
+  return (
+    <div id="exemplos" className="rf-field-examples">
+      <div className="rf-section-head">
+        <h3>Do relato do cliente à primeira verificação</h3>
+      </div>
+      <div className="rf-example-grid">
+        {fieldExamples.map(({ index, symptom, description }) => (
+          <article className="rf-example" key={symptom}>
+            <a
+              className="rf-example-art"
+              href={`${asset}/ficha-${index + 1}.webp`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Ampliar a ficha ${cadernos[index]?.sample} (nova aba)`}
+            >
+              <img
+                src={`${asset}/ficha-${index + 1}.webp`}
+                alt=""
+                width={650}
+                height={919}
+                loading="lazy"
+              />
+              <span>
+                <Expand size={17} aria-hidden="true" />
+              </span>
+            </a>
+            <div className="rf-example-copy">
+              <h4>{symptom}</h4>
+              <p>{description}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+      <div className="rf-steps" aria-label="Como consultar">
+        <p>
+          <Search size={18} aria-hidden="true" /> Encontre o sintoma
+        </p>
+        <p>
+          <Wrench size={18} aria-hidden="true" /> Localize onde inspecionar
+        </p>
+        <p>
+          <ClipboardList size={18} aria-hidden="true" /> Registre o que observou
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ProductPreview() {
   return (
     <section id="amostras" className="rf-section rf-samples" aria-labelledby="titulo-amostras">
       <div className="rf-wrap">
         <div className="rf-section-head">
-          <p className="rf-kicker">POR DENTRO DO MATERIAL</p>
           <h2 id="titulo-amostras">Veja como o produto funciona</h2>
-          <p>
-            Estas são páginas reais da coleção, com pontos de inspeção, fluxogramas e comparações.
-          </p>
+          <p>Encontre o sintoma no índice e confira na ficha onde olhar e o que observar.</p>
         </div>
         <div className="rf-sample-window">
           <div className="rf-sample-track">
@@ -238,6 +303,7 @@ function PageMarquee() {
             ))}
           </div>
         </div>
+        <FieldExamples />
       </div>
     </section>
   );
@@ -250,9 +316,7 @@ function RefrigeristaLanding() {
         Pular para o conteúdo
       </a>
       <header className="rf-header">
-        <div className="rf-topline">
-          <span aria-hidden="true">⚡</span> OFERTA RELÂMPAGO
-        </div>
+        <OfferMarquee />
         <div className="rf-wrap rf-header-inner">
           <a className="rf-brand" href="#topo">
             <span>
@@ -263,6 +327,9 @@ function RefrigeristaLanding() {
           <nav aria-label="Navegação principal">
             <a className="rf-nav-examples" href="#amostras">
               Ver exemplos
+            </a>
+            <a className="rf-nav-examples" href="#cadernos">
+              O que vem no kit
             </a>
             <a className="rf-header-cta" href="#oferta">
               Ver os planos <ArrowDown size={16} aria-hidden="true" />
@@ -277,12 +344,12 @@ function RefrigeristaLanding() {
             <div className="rf-hero-copy">
               <p className="rf-kicker">MAPA VISUAL DO TÉCNICO REFRIGERISTA</p>
               <h1 id="titulo-principal">
-                O cliente disse: <em>“Liga, mas não gela”.</em> O que você verifica primeiro?
+                “Liga, mas não gela.” <em>O que você verifica primeiro?</em>
               </h1>
               <p className="rf-hero-deck">
-                Abra a ficha do sintoma no celular e veja onde olhar e quais sinais ajudam a decidir
-                o próximo passo. São <strong>6 cadernos em PDF</strong>, da geladeira à refrigeração
-                comercial.
+                Quando o cliente espera uma resposta, abra no celular a ficha do sintoma e encontre
+                os primeiros pontos de inspeção. São <strong>6 cadernos em PDF</strong>, da
+                geladeira ao split inverter e à refrigeração comercial.
               </p>
               <div className="rf-hero-actions" role="group" aria-label="Compra rápida">
                 {plans.map((plan) => (
@@ -298,92 +365,7 @@ function RefrigeristaLanding() {
           </div>
         </section>
 
-        <PageMarquee />
-
-        <section id="exemplos" className="rf-section rf-examples" aria-labelledby="titulo-exemplos">
-          <div className="rf-wrap">
-            <div className="rf-section-head">
-              <h2 id="titulo-exemplos">O defeito começa com uma frase do cliente</h2>
-              <p>Veja como cada relato leva a uma ficha diferente.</p>
-            </div>
-            <div className="rf-example-grid">
-              {fieldExamples.map(({ index, symptom, description }) => (
-                <article className="rf-example" key={symptom}>
-                  <a
-                    className="rf-example-art"
-                    href={`${asset}/ficha-${index + 1}.webp`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`Ampliar a ficha ${cadernos[index]?.sample} (nova aba)`}
-                  >
-                    <img
-                      src={`${asset}/ficha-${index + 1}.webp`}
-                      alt=""
-                      width={650}
-                      height={919}
-                      loading="lazy"
-                    />
-                    <span>
-                      <Expand size={17} aria-hidden="true" />
-                    </span>
-                  </a>
-                  <div className="rf-example-copy">
-                    <h3>{symptom}</h3>
-                    <p>{description}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-            <div className="rf-steps" aria-label="Como consultar">
-              <p>
-                <Search size={18} aria-hidden="true" /> Encontre o sintoma
-              </p>
-              <p>
-                <Wrench size={18} aria-hidden="true" /> Localize onde inspecionar
-              </p>
-              <p>
-                <ClipboardList size={18} aria-hidden="true" /> Registre o que observou
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section id="oferta" className="rf-section rf-offer" aria-labelledby="titulo-oferta">
-          <div className="rf-wrap">
-            <div className="rf-section-head rf-center">
-              <h2 id="titulo-oferta">Escolha o que levar para o próximo chamado</h2>
-              <p>
-                Os dois planos incluem os 6 cadernos. Por mais R$ 5,00, o Completo acrescenta 10
-                bônus de campo.
-              </p>
-            </div>
-            <div className="rf-offer-grid">
-              {plans.map((plan) => (
-                <article
-                  className={`rf-price-card ${plan.name === "Completo" ? "rf-price-card-full" : ""}`}
-                  key={plan.name}
-                >
-                  <p className="rf-plan-includes">
-                    {plan.name === "Completo" ? "6 CADERNOS + 10 BÔNUS" : "6 CADERNOS EM PDF"}
-                  </p>
-                  <h3>Plano {plan.name}</h3>
-                  <p className="rf-plan-description">{plan.description}</p>
-                  <p className="rf-plan-price">{plan.price}</p>
-                  <p className="rf-pay-info">Pagamento único</p>
-                  <ul>
-                    {plan.features.map((feature) => (
-                      <li key={feature}>
-                        <Check size={17} aria-hidden="true" />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  <PlanButton plan={plan} />
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
+        <ProductPreview />
 
         <section id="cadernos" className="rf-section" aria-labelledby="titulo-cadernos">
           <div className="rf-wrap">
@@ -418,8 +400,10 @@ function RefrigeristaLanding() {
           <div className="rf-wrap">
             <div className="rf-section-head">
               <p className="rf-kicker">INCLUÍDOS NO PLANO COMPLETO</p>
-              <h2 id="titulo-bonus">Mais 10 PDFs, do orçamento ao pós-serviço</h2>
-              <p>Modelos de atendimento e materiais de campo para usar nos próximos chamados.</p>
+              <h2 id="titulo-bonus">Os 10 bônus do Plano Completo</h2>
+              <p>
+                Tenha modelos para cobrar a visita, registrar o serviço e fazer o pós-atendimento.
+              </p>
             </div>
             <div className="rf-catalog rf-bonus-grid">
               {bonuses.map(([title, description], index) => (
@@ -435,6 +419,43 @@ function RefrigeristaLanding() {
                     <h3>{title}</h3>
                     <p>{description}</p>
                   </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="oferta" className="rf-section rf-offer" aria-labelledby="titulo-oferta">
+          <div className="rf-wrap">
+            <div className="rf-section-head rf-center">
+              <h2 id="titulo-oferta">Escolha seu plano</h2>
+              <p>
+                Os dois planos incluem os 6 cadernos. Por mais R$ 5,00, você leva os 10 bônus do
+                Completo.
+              </p>
+            </div>
+            <div className="rf-offer-grid">
+              {plans.map((plan) => (
+                <article
+                  className={`rf-price-card ${plan.name === "Completo" ? "rf-price-card-full" : ""}`}
+                  key={plan.name}
+                >
+                  <p className="rf-plan-includes">
+                    {plan.name === "Completo" ? "6 CADERNOS + 10 BÔNUS" : "6 CADERNOS EM PDF"}
+                  </p>
+                  <h3>Plano {plan.name}</h3>
+                  <p className="rf-plan-description">{plan.description}</p>
+                  <p className="rf-plan-price">{plan.price}</p>
+                  <p className="rf-pay-info">Pagamento único</p>
+                  <ul>
+                    {plan.features.map((feature) => (
+                      <li key={feature}>
+                        <Check size={17} aria-hidden="true" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <PlanButton plan={plan} />
                 </article>
               ))}
             </div>
