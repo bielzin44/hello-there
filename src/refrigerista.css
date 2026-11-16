@@ -155,32 +155,23 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 6px 12px;
-  border: 1px solid #97a9b8;
-  border-radius: 8px;
-  background: #fcfdff;
-  color: var(--navy);
+  padding: 6px 14px;
+  border: 1px solid #edb500;
+  border-radius: 999px;
+  background: #ffce15;
+  color: #0d2345;
   text-align: center;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.25;
   text-decoration: none;
 }
 .rf-cta:hover {
-  border-color: #637b8f;
-  background: #edf4f8;
-}
-.rf-cta svg {
-  flex: none;
+  border-color: #d8a300;
+  background: #f4bf00;
 }
 .rf-cta-full {
-  border-color: #bb795b;
-  background: #e9b196;
-  color: #352016;
-}
-.rf-cta-full:hover {
-  border-color: #a26043;
-  background: #f3c6ae;
+  box-shadow: 0 4px 14px #b4840029;
 }
 .rf-hero .rf-trust {
   display: flex;
@@ -367,7 +358,7 @@
 }
 
 .rf-offer {
-  background: #eaf3fa;
+  background: #f3f6f9;
   border-block: 1px solid var(--line);
 }
 .rf-offer-grid {
@@ -375,36 +366,53 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: start;
   max-width: 900px;
-  gap: 18px;
+  gap: 26px;
+  padding-top: 16px;
   margin-inline: auto;
 }
 .rf-price-card {
-  overflow: hidden;
-  border: 1px solid #bdd4e5;
-  border-radius: 18px;
+  position: relative;
+  border: 1px solid #d3deea;
+  border-radius: 20px;
   background: white;
+  box-shadow: 0 6px 22px #142c470a;
 }
 .rf-price-card-full {
-  border-color: #20689a;
-  box-shadow: 0 10px 26px #17385222;
+  border-color: #1759a3;
+  box-shadow:
+    0 0 0 1px #1759a3,
+    0 12px 26px #17385215;
+}
+.rf-plan-badge {
+  position: absolute;
+  top: 0;
+  inset-inline-start: 50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: #0e427e;
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 .rf-price-card-head,
-.rf-price-card-body {
-  padding: clamp(18px, 3vw, 28px);
+.rf-price-card-body,
+.rf-plan-checkout {
+  padding-inline: clamp(16px, 3vw, 28px);
 }
 .rf-price-card-head {
-  background: #f7fafc;
-  border-bottom: 1px solid var(--line);
-}
-.rf-price-card-full .rf-price-card-head {
-  background: var(--navy);
-  color: white;
-}
-.rf-price-card-full .rf-price-card-head p {
-  color: #dce9f2;
+  padding-block: 30px 20px;
+  text-align: center;
 }
 .rf-price-card h3 {
-  font-size: 29px;
+  font-size: clamp(1.5rem, 3vw, 1.85rem);
+  text-transform: uppercase;
 }
 .rf-price-card .rf-plan-description {
   margin-top: 7px;
@@ -412,29 +420,46 @@
   color: var(--muted);
 }
 .rf-plan-payment {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 5px 12px;
-  margin-top: 15px;
+  margin-top: 11px;
 }
 .rf-price-card .rf-plan-price {
-  color: inherit;
+  color: #145397;
   font:
     700 clamp(2.65rem, 5vw, 3.5rem)/1 Barlow,
     Inter,
     sans-serif;
   letter-spacing: -0.05em;
 }
+.rf-price-card-full .rf-plan-price {
+  color: #147342;
+}
 .rf-price-card .rf-pay-info {
+  margin-top: 5px;
   font-size: 12px;
   color: var(--muted);
 }
-.rf-price-card .rf-cta {
-  margin-top: 16px;
+.rf-plan-checkout {
+  padding-block: 22px 18px;
+  text-align: center;
 }
-.rf-price-card-full .rf-cta:focus-visible {
-  outline-color: #f9dccb;
+.rf-plan-checkout .rf-cta {
+  width: min(100%, 280px);
+  text-transform: uppercase;
+  letter-spacing: 0.015em;
+}
+.rf-plan-checkout .rf-plan-checkout-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 11px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+}
+.rf-plan-checkout-note svg {
+  flex: none;
 }
 .rf-price-card-body h4 {
   display: flex;
@@ -444,8 +469,7 @@
   font-weight: 800;
   line-height: 1.3;
 }
-.rf-price-card-body h4 svg,
-.rf-plan-list svg {
+.rf-price-card-body h4 svg {
   flex: none;
   color: var(--blue);
 }
@@ -468,7 +492,13 @@
   font-size: 14px;
 }
 .rf-plan-list svg {
+  flex: none;
   margin-top: 3px;
+  padding: 2px;
+  border-radius: 50%;
+  background: #178745;
+  color: white;
+  stroke-width: 3;
 }
 .rf-plan-bonuses {
   margin-top: 20px;

@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
-  ArrowRight,
   BookOpen,
   Check,
   ChevronDown,
   ClipboardList,
+  Crown,
   Expand,
   FileText,
   Gift,
@@ -162,8 +162,8 @@ function PlanButton({
 }) {
   return (
     <a className={`rf-cta${plan.includesBonuses ? " rf-cta-full" : ""}`} href={plan.checkout}>
-      <span>{compact ? plan.name : `Comprar Plano ${plan.name}`}</span>
-      {compact ? <strong>{plan.price}</strong> : <ArrowRight size={14} aria-hidden="true" />}
+      <span>{compact ? plan.name : `Quero o Plano ${plan.name}`}</span>
+      {compact && <strong>{plan.price}</strong>}
     </a>
   );
 }
@@ -394,6 +394,11 @@ function RefrigeristaLanding() {
                   className={`rf-price-card${plan.includesBonuses ? " rf-price-card-full" : ""}`}
                   key={plan.name}
                 >
+                  {plan.includesBonuses && (
+                    <span className="rf-plan-badge">
+                      <Crown size={14} aria-hidden="true" /> Mais completo
+                    </span>
+                  )}
                   <div className="rf-price-card-head">
                     <h3>Plano {plan.name}</h3>
                     <p className="rf-plan-description">{plan.description}</p>
@@ -401,7 +406,6 @@ function RefrigeristaLanding() {
                       <p className="rf-plan-price">{plan.price}</p>
                       <p className="rf-pay-info">Pagamento único</p>
                     </div>
-                    <PlanButton plan={plan} />
                   </div>
                   <div className="rf-price-card-body">
                     <h4>
@@ -431,6 +435,13 @@ function RefrigeristaLanding() {
                         </ul>
                       </div>
                     )}
+                  </div>
+                  <div className="rf-plan-checkout">
+                    <PlanButton plan={plan} />
+                    <p className="rf-plan-checkout-note">
+                      <ShieldCheck size={14} aria-hidden="true" /> Pagamento e acesso digital pela
+                      Cakto
+                    </p>
                   </div>
                 </article>
               ))}
